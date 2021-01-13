@@ -167,7 +167,7 @@ main header {
 }
 
 main article {
-  padding-bottom: 3.25rem;
+  margin: 3.25rem 0;
 }
 
 main article h1,

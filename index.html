@@ -115,11 +115,6 @@
   </aside>
 
   <main>
-    <header>
-      <h1 id="http-server">HTTP Server</h1>
-      <p>A simple HTTP server inspired by Express and in tune with Functional Programming principles in JavaScript for
-        Deno.</p>
-    </header>
     <div id="loading" class="--hide">
       <svg
           viewBox="0 0 24 24"
@@ -140,80 +135,7 @@
         <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
       </svg>
     </div>
-    <article>
-      <fl-test></fl-test>
-
-      <h2 id="simple-http-server">Simple HTTP server</h2>
-
-      <p>The fastest way to start a HTTP server is to use the startHTTPServer function. The function takes two arguments; the
-        first argument is the options, and the second is a unary function that takes a Request and return a
-        Task of a Response.</p>
-
-      <pre><code>import Task from "https://deno.land/x/functional@v1.3.2/library/Task.js";
-import Response from "https://deno.land/x/functional_io@v1.1.0/library/Response.js";
-import startHTTPServer from "https://deno.land/x/functional_http_server@v0.3.1/library/server.js";
-
-// Hello hello lol
-
-startHTTPServer({ port: 8080 }, request => Task.of(Response.OK({}, request.raw)));</code></pre>
-
-      <p>You can test this simple server by executing it your file</p>
-
-      <pre><code>$ deno run --allow-net server.js</code></pre>
-      <pre><code>$ curl localhost:8080 -d "Hello, Hoge!"
-> Hello, Hoge!</code></pre>
-
-      <h2 id="routing">Routing</h2>
-
-      <p>The main routing tool that comes bundled with this library is conveniently called route. It takes a non-zero number
-        of arguments which are defined by a pair of functions. The first function of the pair is used to assert whether or not
-        to execute the second function. The assertion function takes a Request and return a Boolean, the handling function
-        takes a Request and must return a Task of a Response.</p>
-
-      <pre><code>import Task from "https://deno.land/x/functional@v1.3.2/library/Task.js";
-import { encodeText } from "https://deno.land/x/functional@v1.3.2/library/utilities.js";
-import Response from "https://deno.land/x/functional_io@v1.1.0/library/Response.js";
-import { route } from "https://deno.land/x/functional_http_server@v0.3.1/library/route.js";
-
-startHTTPServer(
-  { port: 8080 },
-  route(
-    [
-      request => request.headers.method === 'GET',
-      _ => Task.of(Response.OK({ 'content-type': 'text/plain' }, encodeText("Hello, Hoge!")))
-    ]
-  );
-);</code></pre>
-
-      <h3 id="routing-handler">Routing handlers</h3>
-
-      <p>Because the pattern is common, this library also offers a collection of handler that automatically creates the
-        assertion function. Each handler takes a String or a RegExp and a unary function.</p>
-
-      <pre><code>import Task from "https://deno.land/x/functional@v1.3.2/library/Task.js";
-import { encodeText } from "https://deno.land/x/functional@v1.3.2/library/utilities.js";
-import Response from "https://deno.land/x/functional_io@v1.1.0/library/Response.js";
-import { handlers, route } from "https://deno.land/x/functional_http_server@v0.3.1/library/route.js";
-
-startHTTPServer(
-  { port: 8080 },
-  route(
-    handlers.get('/', _ => Task.of(Response.OK({ 'content-type': 'text/plain' }, encodeText("Hello, Hoge!"))))
-  )
-);</code></pre>
-
-      <h4 id="handlers-delete">handlers<code>.delete</code></h4>
-
-      <p><code>String|RegExp → (Request → Task Response) → Task Response</code></p>
-
-      <p>This function takes a string or a regex and a unary function that takes a Request and return a task of a Response.
-        The handler will apply the unary function to a HTTP requests that uses the DELETE method if the path equals or match
-        the first argument.</p>
-
-      <pre><code>import { handlers } from "https://deno.land/x/functional_http_server@v0.3.1/library/route.js";
-
-startHTTPServer({ port: 8080 }, handlers.delete(/\/hoge\/(?&lt;ID&gt;[a-z]+)$/, handleDestroyHoge));</code></pre>
-    </article>
+    <article></article>
   </main>
 </div>
 

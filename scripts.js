@@ -81,11 +81,14 @@ const prependHeadings = converge(
   ]
 );
 
+const serializeActivePage = hash => `/${hash.replace(/^#/, "")}.html`;
+const deserializeActivePage = path => `/#${path.replace(/^\//, "").replace(/\.html$/, "")}`;
+
 const initializeApplication = juxt(
   [
     renderApplication(
       {
-        activePage: _ => window.location.pathname,
+        activePage: _ => window.location.hash !== "" ? serializeActivePage(window.location.hash) : "/core-either.html",
         loading: always(false),
         themeMode: pipe(prop("firstElementChild"), getAttribute("data-theme-mode"))
       },
@@ -111,14 +114,19 @@ const initializeApplication = juxt(
           )
         ],
         [
-          (_, state) => state.activePage !== window.location.pathname,
+          ($$element, state) =>
+            state.activePage !== $$element.firstElementChild.getAttribute("data-active-page"),
           pipe(
             useWith(
               curry(
-                ([ [ _setInnerHTML ], [ _hideLoader ] ], task) => map(
+                ([ [ _setInnerHTML ], [ _hideLoader ], _setActivePage ], [ task, activePage ]) => map(
                   pipe(
                     map(pipe(decodeRaw, _setInnerHTML, juxt([ parseCodeBlocks, prependHeadings ]))),
                     _hideLoader,
+                    tap(_ => {
+                      window.history.pushState({}, "", deserializeActivePage(activePage));
+                      _setActivePage(activePage);
+                    }),
                     always({})
                   ),
                   task
@@ -145,9 +153,18 @@ const initializeApplication = juxt(
                         ]
                       )
                     ),
+                    pipe(
+                      prop("firstElementChild"),
+                      flip(setAttribute("data-active-page"))
+                    )
                   ]
                 ),
-                pipe(prop("activePage"), Request.get, fetch)
+                juxt(
+                  [
+                    pipe(prop("activePage"), Request.get, fetch),
+                    prop("activePage")
+                  ]
+                )
               ]
             ),
           )
@@ -165,10 +182,10 @@ const initializeApplication = juxt(
       addEventListenerRX(
         "hashchange",
         curry(
-          ($$element, state) => console.debug(`[70] Hash change: ${window.location.hash}`) ||
+          ($$element, state) =>
             Task.of(
-              state.activePage !== window.location.hash.replace(/^#/, "") + ".html"
-                ? { activePage: window.location.hash.replace(/^#/, "") + ".html" }
+              state.activePage !== serializeActivePage(window.location.hash)
+                ? { activePage: serializeActivePage(window.location.hash) }
                 : {}
             )
         ),
