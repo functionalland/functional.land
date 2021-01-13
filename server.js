@@ -44,7 +44,8 @@ startHTTPServer(
   { port: Number(Deno.env.get("PORT")) || 8080 },
   pipe(
     path([ "headers", "url" ]),
-    path => File.fromPath(`${Deno.cwd()}/${path === "/" ? "index.html" : path.replace("?fragment=true", "")}`),
+    path => path.replace(/\?.*/, "").replace(/(?<=\.[jts]{2})\:[0-9]+\:[0-9]+/, ""),
+    path => File.fromPath(`${Deno.cwd()}/${path === "/" ? "index.html" : path}`),
     readFile,
     map(
       converge(

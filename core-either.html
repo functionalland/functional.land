@@ -29,7 +29,7 @@ assert(Either.Right(containerC));</code></pre>
   renderApplication(
     {
       page: $$element => $$element.querySelector.id,
-      themeMode: $$element => $$element.firstElementChild.getAttribute("data-color-mode"),
+      themeMode: $$element => $$element.firstElementChild.getAttribute("data-theme-mode"),
       loading: _ => true
     },
     processEvents(
@@ -57,8 +57,8 @@ assert(Either.Right(containerC));</code></pre>
         )
       ),
       [
-        ($$element, state) => $$element.firstElementChild.getAttribute("data-color-mode") !== state.themeMode,
-        ($$element, state) => $$element.firstElementChild.setAttribute("data-color-mode", state.themeMode)
+        ($$element, state) => $$element.firstElementChild.getAttribute("data-theme-mode") !== state.themeMode,
+        ($$element, state) => $$element.firstElementChild.setAttribute("data-theme-mode", state.themeMode)
           && Task.of({})
       ]
     )

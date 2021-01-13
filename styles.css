@@ -1,4 +1,4 @@
-:root, [data-color-mode="dark"] {
+:root, [data-theme-mode="dark"] {
   --color-gray-1: #F5F5F5;
   --color-gray-2: #BEC2CC;
   --color-gray-3: #4B515E;
@@ -39,7 +39,7 @@
   --color-logo: #858da6;
 }
 
-[data-color-mode="light"] {
+[data-theme-mode="light"] {
   --color-gray-1: #475F7B;
   --color-gray-2: #B3C0CE;
   --color-gray-3: #E7EDF3;
@@ -125,11 +125,11 @@ body > header {
   fill: var(--color-logo);
 }
 
-[data-color-mode="light"] #theme-toggle__dark {
+[data-theme-mode="light"] #theme-toggle__dark {
   display: block;
 }
 
-[data-color-mode="dark"] #theme-toggle #theme-toggle__light {
+[data-theme-mode="dark"] #theme-toggle #theme-toggle__light {
   display: block;
 }
 
@@ -318,79 +318,6 @@ input[type="email"],
 
 .input-wrapper svg {
   stroke: var(--color-default-text);
-}
-
-aside navigation a {
-  color: inherit;
-  text-decoration: none;
-}
-
-aside navigation ul {
-  padding-inline-start: 0;
-}
-
-aside navigation ul li {
-  list-style-type: none;
-}
-
-aside navigation > ul > li {
-  color: var(--color-navigation-first-level);
-  font-weight: 500;
-  font-size: 0.6875em;
-  letter-spacing: 0.09rem;
-  margin: 1.125rem 0;
-  text-transform: uppercase;
-}
-
-aside navigation > ul > ul > li {
-  /*background-color: #22252B;*/
-  color: var(--color-navigation-second-level);
-  align-items: center;
-  border-radius: 0.25rem;
-  display: flex;
-  font-weight: 600;
-  padding: 0.5rem 1.125rem;
-  margin: 0.5rem 0;
-}
-
-aside navigation > ul > ul > li > :first-child {
-  flex-grow: 1;
-}
-
-aside navigation > ul > ul > li svg {
-  stroke: var(--color-gray-1);
-  transition: transform .2s ease-out;
-}
-
-aside navigation > ul > ul > li {
-  cursor: pointer;
-}
-
-aside navigation > ul > ul > li.--active {
-  background-color: var(--color-navigation-section-active);
-}
-
-aside navigation > ul > ul > li.--active svg {
-  transform: rotate(90deg);
-}
-
-aside navigation > ul > ul > ul {
-  max-height: 0px;
-  overflow: hidden;
-
-  transition: max-height .25s ease-in-out;
-}
-
-aside navigation > ul > ul > li.--active + ul {
-  max-height: 100vh;
-}
-
-aside navigation > ul > ul > ul > li {
-  color: var(--color-navigation-third-level);
-  font-size: 0.9375em;
-  font-weight: 400;
-  margin: 1.375rem 0;
-  padding: 0 2rem;
 }
 
 #loading {

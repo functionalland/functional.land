@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-color-mode="dark">
+<html lang="en" data-theme-mode="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport"
@@ -110,81 +110,7 @@
       <input id="search" nmae="search" type="search" placeholder="Search...">
     </label>
     <navigation>
-      <ul>
-        <li>Reference</li>
-        <ul>
-          <li class="--active">
-            <span>Core</span>
-            <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                stroke-width="2.5"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-              <use href="#vector-chevron" />
-            </svg>
-          </li>
-          <ul>
-            <li><a href="/core-either.html">Either</a></li>
-            <li><a href="/core-IO.html">IO</a></li>
-            <li><a href="/core-maybe.html">Maybe</a></li>
-            <li>Pair</li>
-            <li>Task</li>
-            <li>Type factory</li>
-            <li>Sum Type factory</li>
-            <li>Utilities</li>
-            <li>TypeScript</li>
-          </ul>
-          <li>
-            <span>IO</span>
-            <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                stroke-width="2.5"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-              <use href="#vector-chevron" />
-            </svg>
-          </li>
-          <ul>
-            <li>Buffer</li>
-            <li>Directory</li>
-            <li>File</li>
-            <li>File System Collection</li>
-            <li>Request</li>
-            <li>Resource</li>
-            <li>Response</li>
-            <li>URL</li>
-            <li>Browser safe</li>
-            <li>File System</li>
-            <li>Utilities</li>
-            <li>TypeScript</li>
-          </ul>
-        </ul>
-        <li>Tutorials</li>
-        <ul>
-          <li>
-            <span>Introduction to FP</span>
-            <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                stroke-width="2.5"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-              <use href="#vector-chevron" />
-            </svg>
-          </li>
-        </ul>
-      </ul>
+      <fl-navigation data-active-section="core" />
     </navigation>
   </aside>
 
