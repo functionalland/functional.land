@@ -49,8 +49,6 @@ window[$$debug] && (Error.stackTraceLimit = Infinity);
 window.NodeList.prototype["fantasy-land/filter"] = Array.prototype.filter;
 window.NodeList.prototype["fantasy-land/map"] = Array.prototype.map;
 
-const hljs = window.hljs;
-
 const getTemplateAnchor = _ => querySelector("#template-vector-link", document);
 
 const handleHashChange = _ =>
@@ -80,7 +78,7 @@ const handleThemeToggleClick = pipe(
   )
 );
 
-const parseCodeBlocks = pipe(querySelectorAll("pre code"), map(hljs.highlightBlock));
+const parseCodeBlocks = pipe(querySelectorAll("pre code"), map(window.hljs.highlightBlock));
 
 // Element -> []
 const prependHeadings = converge(

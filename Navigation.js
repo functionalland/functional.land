@@ -128,7 +128,6 @@ export const handleConnected = useWith(
 
 export const handleRender = curry(
   ($$element, state) => {
-    console.log("----", state, new Error().stack);
     const $$navigationSectionList = $$element.shadowRoot.querySelectorAll(":host > ul > ul > li");
 
     if ($$navigationSectionList.length > 0) {
