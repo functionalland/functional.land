@@ -1,0 +1,54 @@
+<h2 id="state">State</h2>
+<h3 id="-addeventlistener-"><code>addEventListener</code></h3>
+<p><code>String → ((Element → { String: * } → Task { String: * }) → Element → Element</code></p>
+<p>This function takes the event name, a binary function -- which takes an element, a state and, returns a Task of a
+state fragment -- and an element.</p>
+<p>The function creates an event handler to push a new state against either the component or the document.</p>
+
+<pre><code class="lang-js">import { addEventListener } from &quot;http://x.ld:8069/functional-flux/library/state.js&quot;;
+
+addEventListener(&quot;click&quot;, curry(($$element, state) =&gt; Task.of({})), $$element);
+</code></pre>
+<h3 id="-forcerender-"><code>forceRender</code></h3>
+<p><code>(Element, { String: * }) → Element</code></p>
+<p>This function takes an element, an optional state and, return the element.</p>
+<p>The function forces a render of the given element; passing the <code>document</code> will render the whole application.</p>
+
+<pre><code class="lang-js">import { forceRender } from &quot;http://x.ld:8069/functional-flux/library/state.js&quot;;
+
+forceRender($$element);
+</code></pre>
+<h3 id="-renderapplication-"><code>renderApplication</code></h3>
+<p><code>{ String: Element → * } → (Element → { String: * } → Task { String: * }) → Element → _|_</code></p>
+<p>This function takes an object, a binary function -- which takes an element, a state and, returns a task of state --
+an element and, will not resolve as long as the application is running.</p>
+<p>The object represents the shape of the global state. All values must be a function that takes an element, likely
+<code>document</code> and, returns any type.</p>
+
+<pre><code class="lang-js">import { addEventListener } from &quot;http://x.ld:8069/functional-dom/library/element.js&quot;;
+import { renderApplication } from &quot;http://x.ld:8069/functional-flux/library/state.js&quot;;
+
+const initializeApplication = (
+  {
+    language: pipe(prop(&quot;firstElementChild&quot;), getAttribute(&quot;lang&quot;)),
+    isLoading: always(false),
+  },
+  curry(($$element, state) =&gt; Task.of({}))
+);
+
+addEventListener(&quot;DOMContentLoaded&quot;, _ =&gt; initializeApplication(document), document);
+</code></pre>
+<h3 id="-processevents-"><code>processEvents</code></h3>
+<p><code>([ (Element, { String: * }) → Boolean, (Element, { String: * }) → Task{ String: * } ], ...) → Element → { String: * } → Task  { String: * }</code></p>
+<p>This function takes an arbitrary number of pair of a binary predicate and a binary handler, and returns a task of a
+state.</p>
+<p>The function is a utility that can be used in place of the handler function for <code>renderApplication</code> and,
+<code>defineComponent</code>.</p>
+
+<pre><code class="lang-js">import { processEvents } from &quot;http://x.ld:8069/functional-flux/library/state.js&quot;;
+
+const handler = processEvents(
+  [ curry(($$element, state) =&gt; Math.random() &gt; 0.6), curry(($$element, state) =&gt; Task.of({ hoge: &quot;piyo&quot; }) ],
+  [ curry(($$element, state) =&gt; Math.random() &gt; 0.3), curry(($$element, state) =&gt; Task.of({ fuga: &quot;hogefuga&quot; }) ]
+);
+</code></pre>

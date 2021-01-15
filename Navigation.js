@@ -32,6 +32,7 @@ import { evert, log } from "http://x.ld:8069/functional/library/utilities.js";
 import {
   addClass,
   cloneNode,
+  closest,
   getAttribute,
   insertAdjacentElement,
   querySelector,
@@ -45,7 +46,9 @@ import {
   defineComponent,
   factorizeShadowFromExternalAsset
 } from "http://x.ld:8069/functional-flux/library/component.js";
-import { addEventListener as addEventListenerRX } from "http://x.ld:8069/functional-flux/library/state.js"
+import { addEventListener as addEventListenerRX } from "http://x.ld:8069/functional-flux/library/state.js";
+
+import { parseHash, serializeActivePage } from "./utilities.js";
 
 export const bindNavigationSection = $$parentElement =>
   $$sectionElement => addEventListenerRX(
@@ -63,7 +66,11 @@ export const bindNavigationPage = _ =>
     "click",
     curryN(
       2,
-      $$element => Task.of({ activePage: $$element.querySelector("a").getAttribute("href") })
+      $$element => {
+        const [ activeSection, activePage ] = parseHash($$element.querySelector("a").getAttribute("href"));
+
+        return Task.of({ activeSection, activePage })
+      }
     ),
     $$linkElement
   );
@@ -77,7 +84,7 @@ export const handleAttributeChange = useWith(
 );
 
 export const handleConnected = useWith(
-  _ => Task.of({}),
+  ([,, activeSection], state) => Task.of(activeSection !== state.activeSection ? { activeSection } : {}),
   [
     pipe(
       juxt(
@@ -95,6 +102,22 @@ export const handleConnected = useWith(
               pipe(prop("shadowRoot"), querySelectorAll(":host > ul > ul > ul > li"), flip(map)),
               bindNavigationPage
             ]
+          ),
+          pipe(
+            ap(
+              flip(setAttribute("data-active-section")),
+              pipe(
+                prop("shadowRoot"),
+                $e => querySelector(
+                  `a[href="${window.location.hash}"]`,
+                  $e
+                ),
+                closest("ul"),
+                prop("previousElementSibling"),
+                getAttribute("data-section-name")
+              )
+            ),
+            getAttribute("data-active-section")
           )
         ]
       )
@@ -105,18 +128,19 @@ export const handleConnected = useWith(
 
 export const handleRender = curry(
   ($$element, state) => {
+    console.log("----", state, new Error().stack);
     const $$navigationSectionList = $$element.shadowRoot.querySelectorAll(":host > ul > ul > li");
 
-    if ($$navigationSectionList.length === 0) return Task.of({});
+    if ($$navigationSectionList.length > 0) {
+      $$navigationSectionList.forEach($e => $e.classList.remove("--active"));
 
-    $$navigationSectionList.forEach($e => $e.classList.remove("--active"));
+      const $$activeSectionElement = Array.prototype.find.call(
+        $$navigationSectionList,
+        $e => $e.getAttribute("data-section-name") === state.activeSection
+      );
 
-    const $$activeSectionElement = Array.prototype.find.call(
-      $$navigationSectionList,
-      $e => $e.getAttribute("data-section-name") === state.activeSection
-    );
-
-    $$activeSectionElement.classList.add("--active");
+      $$activeSectionElement && $$activeSectionElement.classList.add("--active");
+    }
 
     return Task.of({});
   }
@@ -125,8 +149,8 @@ export const handleRender = curry(
 export const renderNavigation = defineComponent(
   [
     "fl-navigation",
-    { activeSection: getAttribute("data-active-section") },
-    pick([ "activePage" ]),
+    {},
+    pick([ "activePage", "activeSection" ]),
     [ "data-active-section" ],
     handleAttributeChange,
     handleConnected

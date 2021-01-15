@@ -1,0 +1,22 @@
+<h2 id="pair">Pair</h2>
+<p>The <code>Pair</code> type represents two values.</p>
+<p>The <code>Pair</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Bifunctor</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Functor</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">import Pair from &quot;https://deno.land/x/functional@v1.3.2/library/Pair.js&quot;;
+
+const pair = Pair(42, 42)
+  .bimap(
+    x =&gt; x * 2,
+    x =&gt; x + 2
+  );
+
+assert(Pair.is(pair));
+assert(pair.first === 84);
+assert(pair.second === 44);
+</code></pre>

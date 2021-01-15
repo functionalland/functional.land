@@ -1,0 +1,20 @@
+<h2 id="server">Server</h2>
+<h3 id="-stream-"><code>stream</code></h3>
+<p><code>(Request → Task Response) → AsyncIterator → _|_</code></p>
+<p>This function takes a unaryFunction -- which itself takes a
+<a href="https://github.com/sebastienfilion/functional-io#request"><code>Request</code></a> and, returns a Task of a
+<a href="https://github.com/sebastienfilion/functional-io#Response"><code>Response</code></a> -- and, an Async Iterator of a
+<a href="https://deno.land/std@0.82.0/http">Deno HTTP request</a>. The function doesn&#39;t resolve to a value.</p>
+<h3 id="-starthttpserver-"><code>startHTTPServer</code></h3>
+<p><code>Object → (Request → Response) → Listener</code></p>
+<p>This function takes an object of options and, a unary function -- which itself takes a
+<a href="https://github.com/sebastienfilion/functional-io#request"><code>Request</code></a> and, returns a Task of a
+<a href="https://github.com/sebastienfilion/functional-io#Response"><code>Response</code></a>. The function will return a server instance
+that can be closed (<code>server.close()</code>). <a href="https://deno.land/std@0.82.0/http">See the Deno server library</a> for reference.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.2/library/Task.js&quot;;
+import Response from &quot;https://deno.land/x/functional_io@v1.1.0/library/Response.js&quot;;
+import startHTTPServer from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/server.js&quot;;
+
+startHTTPServer({ port: 8080 }, request =&gt; Task.of(Response.OK({}, request.raw)));
+</code></pre>

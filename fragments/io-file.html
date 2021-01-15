@@ -1,0 +1,21 @@
+<h2 id="file">File</h2>
+<p>The <code>File</code> type extends the <code>Resource</code> type. It represents a file with a path.
+It has three attributes: the first is the path of the file, the second is a typed array named &quot;raw&quot; and the last
+is the Resource ID (<code>rid</code>).
+A <code>File</code> is composable and interoperable with a <code>Resource</code> or a <code>Buffer</code> -- It also has some interoperability with a
+<code>Location</code> through the <code>FileSystemCollection</code>.</p>
+<p>The <code>File</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Bifunctor</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">const file = File(`${Deno.cwd()}/hoge`, new Uint8Array([ 65, 66, 67, 68, 69 ]), 3)
+  .concat(File(`${Deno.cwd()}/piyo`, new Uint8Array([ 70, 71, 72, 73, 74 ]), 3));
+
+assert(File.is(file));
+</code></pre>

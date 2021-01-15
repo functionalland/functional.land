@@ -1,0 +1,20 @@
+<h2 id="file-system-collection">File System Collection</h2>
+<p>The <code>FileSystemCollection</code> is represents a collection of <code>Location</code>, namely of <code>Directory</code> and <code>File</code>. This of it
+as an Array for those types.</p>
+<p>The <code>FileSystemCollection</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Traversable</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">const containerA = Maybe.Just(42).map(x =&gt; x + 2);
+const containerB = Maybe.Nothing.map(x =&gt; x + 2);
+
+assert(Maybe.Just.is(containerA));
+assert(containerA.extract() === 44);
+assert(Maybe.Nothing.is(containerB));
+</code></pre>

@@ -1,0 +1,20 @@
+<h2 id="maybe">Maybe</h2>
+<p>The <code>Maybe</code> is the most common sum type; it represents the possibility of a value being <code>null</code> or <code>undefined</code>.</p>
+<p>The <code>Maybe</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Alternative</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">import Maybe from &quot;https://deno.land/x/functional@v1.3.2/library/Maybe.js&quot;;
+
+const containerA = Maybe.Just(42).map(x =&gt; x + 2);
+const containerB = Maybe.Nothing.map(x =&gt; x + 2);
+
+assert(Maybe.Just.is(containerA));
+assert(containerA.extract() === 44);
+assert(Maybe.Nothing.is(containerB));
+</code></pre>

@@ -1,0 +1,27 @@
+<h2 id="redis-response">Redis Response</h2>
+<p>The <code>RedisResponse</code> represents a Redis response.
+It has only one argument, a typed array named &quot;raw&quot;.
+The <code>RedisResponse</code> type is mostly interoperable with <code>RedisRequest</code>, <a href="https://github.com/sebastienfilion/functional-io#resource"><code>Resource</code></a>,
+<a href="https://github.com/sebastienfilion/functional-io#file"><code>File</code></a>, <a href="https://github.com/sebastienfilion/functional-io#request"><code>(HTTP) Request</code></a>
+and <a href="https://github.com/sebastienfilion/functional-io#response"><code>(HTTP) Response</code></a>.</p>
+<p>The <code>RedisResponse</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Alternative</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">import RedisResponse from &quot;https://deno.land/x/functional-redis@v0.1.1/library/RedisResponse.js&quot;;
+
+const redisResponse = RedisResponse.Success(new Uint8Array([]));
+
+assert(RedisResponse.is(redisResponse));
+</code></pre>
+<h3 id="utilities">Utilities</h3>
+<h4 id="-factorizeredisresponsesuccess-"><code>factorizeRedisResponseSuccess</code></h4>
+<p><code>Uint8Array → RedisResponse.Success</code></p>
+<h4 id="-factorizeredisresponsefailure-"><code>factorizeRedisResponseFailure</code></h4>
+<p><code>Uint8Array → RedisResponse.Failure</code></p>

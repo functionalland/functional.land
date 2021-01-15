@@ -1,0 +1,98 @@
+<h2 id="type-factory">Type factory</h2>
+<p>The Type factory can be used to build complex data structure.</p>
+
+<pre><code class="lang-js">import { factorizeType } from &quot;https://deno.land/x/functional@v1.3.2/library/factories.js&quot;;
+
+const Coordinates = factorizeType(&quot;Coordinates&quot;, [ &quot;x&quot;, &quot;y&quot; ]);
+const vector = Coordinates(150, 200);
+// vector.x === 150
+// vector.y === 200
+</code></pre>
+<h3 id="type-from-">Type<code>.from</code></h3>
+<p><code>Type ~&gt; Object → t</code></p>
+<p>Create an instance of Type using an object representation.</p>
+
+<pre><code class="lang-js">const vector = Coordinates.from({ x: 150, y: 200 });
+// vector.x === 150
+// vector.y === 200
+</code></pre>
+<h3 id="type-is-">Type<code>.is</code></h3>
+<p><code>Type ~&gt; Type t → Boolean</code></p>
+<p>Assert that an instance is of the same Type.</p>
+
+<pre><code class="lang-js">Coordinates.is(vector);
+// true
+</code></pre>
+<h3 id="type-tostring-">Type<code>.toString</code></h3>
+<p><code>Type ~&gt; () → String</code></p>
+<p>Serialize the Type Representation into a string.</p>
+
+<pre><code class="lang-js">Coordinates.toString();
+// &quot;Coordinates&quot;
+</code></pre>
+<h3 id="type-a-tostring-">Type(a)<code>.toString</code></h3>
+<p><code>Type t =&gt; t ~&gt; () → String</code></p>
+<p>Serialize the instance into a string.</p>
+
+<pre><code class="lang-js">vector.toString();
+// &quot;Coordinates(150, 200)&quot;
+</code></pre>
+<h2 id="sum-type-factory">Sum Type factory</h2>
+
+<pre><code class="lang-js">import { factorizeSumType } from &quot;https://deno.land/x/functional@v1.3.2/library/factories.js&quot;;
+
+const Shape = factorizeSumType(
+  &quot;Shape&quot;,
+  {
+    // Square :: (Coord, Coord) → Shape
+    Square: [ &quot;topLeft&quot;, &quot;bottomRight&quot; ],
+    // Circle :: (Coord, Number) → Shape
+    Circle: [ &quot;center&quot;, &quot;radius&quot; ]
+  }
+);
+</code></pre>
+<h3 id="sumtype-from-">SumType<code>.from</code></h3>
+<p><code>SumType ~&gt; Object → t</code></p>
+<p>Create an instance of Type using an object representation.</p>
+
+<pre><code class="lang-js">const oval = Shape.Circle.from(
+  {
+    center: Coordinates.from({ x: 150, y: 200 }),
+    radius: 200
+  }
+);
+// oval.center === Coordinates(150, 200)
+// oval.radius === 200
+</code></pre>
+<h3 id="sumtype-is-">SumType<code>.is</code></h3>
+<p><code>SumType ~&gt; SumType t → Boolean</code></p>
+<p>Assert that an instance is of the same Sum Type.</p>
+
+<pre><code class="lang-js">Shape.Circle.is(oval);
+// true
+</code></pre>
+<h3 id="sumtype-fold-">SumType<code>#fold</code></h3>
+
+<pre><code class="lang-js">Shape.prototype.translate = function (x, y, z) {
+  return this.fold({
+    Square: (topleft, bottomright) =&gt;
+      Shape.Square(
+        topLeft.translate(x, y, z),
+        bottomRight.translate(x, y, z)
+      ),
+
+    Circle: (centre, radius) =&gt;
+      Shape.Circle(
+        centre.translate(x, y, z),
+        radius
+      )
+  })
+};
+</code></pre>
+<h3 id="sumtype-a-tostring-">SumType(a)<code>.toString</code></h3>
+<p><code>SumType t =&gt; t ~&gt; () → String</code></p>
+<p>Serialize the instance into a string.</p>
+
+<pre><code class="lang-js">oval.toString();
+// &quot;Shape.Circle(Coordinates(150, 200), 200)&quot;
+</code></pre>

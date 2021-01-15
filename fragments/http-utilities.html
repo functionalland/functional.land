@@ -1,0 +1,27 @@
+<h2 id="utilities">Utilities</h2>
+<h3 id="-parsebody-"><code>parseBody</code></h3>
+<p><code>Request → a</code></p>
+<p>This function takes a <code>Request</code> and return the most appropriate parsing of the body;
+an object if the content-type of the request is <code>application/json</code> or, a string if the content type of the request is
+<code>text/*</code>.</p>
+
+<pre><code class="lang-js">import { parseBody } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/utilities.js&quot;;
+
+assertEquals(
+  parseBody(
+    Request({ &#39;content-type&#39;: &#39;application/json&#39; }, encodeText(JSON.stringify({ piyo: &#39;piyo&#39; })))
+  ),
+  { piyo: &#39;piyo&#39; }
+);
+</code></pre>
+<h3 id="-parsequerystring-"><code>parseQueryString</code></h3>
+<p><code>Request → Record</code></p>
+<p>This function takes a <code>Request</code> and return an record of the query string.</p>
+
+<pre><code class="lang-js">import { parseQueryString } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/utilities.js&quot;;
+
+assertEquals(
+  parseQueryString(Request({ url: &#39;/?hoge=hoge&#39; }, new Uint8Array([]))),
+  { hoge: &#39;hoge&#39; }
+);
+</code></pre>

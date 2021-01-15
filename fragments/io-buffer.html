@@ -1,0 +1,18 @@
+<h2 id="buffer">Buffer</h2>
+<p>The <code>Buffer</code> is the most basic type; it only has one attribute which is a typed array named &quot;raw&quot;.
+Any type that share the raw attribute is composable with <code>Buffer</code> (and each other) and interoperable.</p>
+<p>The <code>Buffer</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">import Buffer from &quot;https://deno.land/x/functional_io@v1.1.0/library/Buffer.js&quot;;
+
+const buffer = Buffer.fromString(&quot;hoge&quot;).concat(Buffer.fromString(&quot;fuga&quot;));
+
+assert(Buffer.is(buffer));
+</code></pre>

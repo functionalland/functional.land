@@ -1,0 +1,16 @@
+<h2 id="directory">Directory</h2>
+<p>The <code>Directory</code> type represents a directory on the file system. It is the only type with the same shape as <code>URL</code>.
+It has only one attributes: the path of the directory.
+A <code>Directory</code> is interoperable with a <code>URL</code> or a <code>File</code>.
+It also has interoperability with a <code>File</code> through the <code>FileSystemCollection</code> type.</p>
+<p>The <code>Directory</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Ord</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">assert(Directory(`${Deno.cwd()}/hoge`).lte(Directory(`${Deno.cwd()}/piyo`)));
+</code></pre>

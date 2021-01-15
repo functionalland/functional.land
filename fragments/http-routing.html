@@ -1,0 +1,135 @@
+<h2 id="routing">Routing</h2>
+<p>The main routing tool that comes bundled with this library is conveniently called <code>route</code>.
+It takes a non-zero number of arguments which are defined by a pair of functions.
+The first function of the pair is used to assert whether or not to execute the second function.
+The assertion function takes a <code>Request</code> and return a <code>Boolean</code>, the handling function takes a <code>Request</code> and
+must return a <code>Task</code> of a <code>Response</code>.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.2/library/Task.js&quot;;
+import { encodeText } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import Response from &quot;https://deno.land/x/functional_io@v1.1.0/library/Response.js&quot;;
+import { route } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer(
+  { port: 8080 },
+  route(
+    [
+      request =&gt; request.headers.method === &#39;GET&#39;,
+      _ =&gt; Task.of(Response.OK({ &#39;content-type&#39;: &#39;text/plain&#39; }, encodeText(&quot;Hello, Hoge!&quot;)))
+    ]
+  );
+);
+</code></pre>
+<h3 id="routing-handlers">Routing handlers</h3>
+<p>Because the pattern is common, this library also offers a collection of handler that automatically creates
+the assertion function. Each handler takes a <code>String</code> or a <code>RegExp</code> and a unary function.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.2/library/Task.js&quot;;
+import { encodeText } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import Response from &quot;https://deno.land/x/functional_io@v1.1.0/library/Response.js&quot;;
+import { handlers, route } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer(
+  { port: 8080 },
+  route(
+    handlers.get(&#39;/&#39;, _ =&gt; Task.of(Response.OK({ &#39;content-type&#39;: &#39;text/plain&#39; }, encodeText(&quot;Hello, Hoge!&quot;))))
+  )
+);
+</code></pre>
+<h4 id="handlers-delete-">handlers<code>.delete</code></h4>
+<p><code>String|RegExp → (Request → Task Response) → Task Response</code></p>
+<p>This function takes a string or a regex and a unary function that takes a <code>Request</code> and return a task of a
+<code>Response</code>. The handler will apply the unary function to a HTTP requests that uses the <code>DELETE</code> method if the path
+equals or match the first argument.</p>
+
+<pre><code class="lang-js">import { handlers } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer({ port: 8080 }, handlers.delete(/\/hoge\/(?&lt;ID&gt;[a-z]+)$/, handleDestroyHoge));
+</code></pre>
+<h4 id="handlers-get-">handlers<code>.get</code></h4>
+<p><code>String|RegExp → (Request → Task Response) → Task Response</code></p>
+<p>This function takes a string or a regex and a unary function that takes a <code>Request</code> and return a task of a
+<code>Response</code>. The handler will apply the unary function to a HTTP requests that uses the <code>GET</code> method if the path
+equals or match the first argument.</p>
+
+<pre><code class="lang-js">import { handlers } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer({ port: 8080 }, handlers.get(/\/hoge\/(?&lt;ID&gt;[a-z]+)$/, handleRetrieveHoge));
+</code></pre>
+<h4 id="handlers-patch-">handlers<code>.patch</code></h4>
+<p><code>String|RegExp → (Request → Task Response) → Task Response</code></p>
+<p>This function takes a string or a regex and a unary function that takes a <code>Request</code> and return a task of a
+<code>Response</code>. The handler will apply the unary function to a HTTP requests that uses the <code>PATCH</code> method if the path
+equals or match the first argument.</p>
+
+<pre><code class="lang-js">import { handlers } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer({ port: 8080 }, handlers.patch(/\/hoge\/(?&lt;ID&gt;[a-z]+)$/, handleUpdateHoge));
+</code></pre>
+<h4 id="handlers-post-">handlers<code>.post</code></h4>
+<p><code>String|RegExp → (Request → Task Response) → Task Response</code></p>
+<p>This function takes a string or a regex and a unary function that takes a <code>Request</code> and return a task of a
+<code>Response</code>. The handler will apply the unary function to a HTTP requests that uses the <code>POST</code> method if the path
+equals or match the first argument.</p>
+
+<pre><code class="lang-js">import { handlers } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer({ port: 8080 }, handlers.post(&#39;/hoge&#39;, handleCreateHoge));
+</code></pre>
+<h4 id="handlers-put-">handlers<code>.put</code></h4>
+<p><code>String|RegExp → (Request → Task Response) → Task Response</code></p>
+<p>This function takes a string or a regex and a unary function that takes a <code>Request</code> and return a task of a
+<code>Response</code>. The handler will apply the unary function to a HTTP requests that uses the <code>PUT</code> method if the path
+equals or match the first argument.</p>
+
+<pre><code class="lang-js">import { handlers } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer({ port: 8080 }, handlers.put(/\/hoge\/(?&lt;ID&gt;[a-z]+)$/, handleUpdateHoge));
+</code></pre>
+<h4 id="-route-"><code>route</code></h4>
+<p><code>([ (Request → Boolean), (Request → Task Response) ],...) → Task Response</code></p>
+<p>This functions takes an arbitrary amount of array pairs of functions and return a task of a <code>Response</code>. The first
+function of the pair is a predicate, it takes a <code>Request</code> and returns a <code>Boolean</code>. The second function of the pair
+is a unary function that takes a <code>Request</code> and return a task of a <code>Response</code>; it will be executed only if the first
+function returns <code>true</code>.</p>
+
+<pre><code class="lang-js">import { route } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+
+startHTTPServer(
+  { port: 8080 },
+  route(
+    [
+      request =&gt; request.headers.method === &quot;POST&quot; &amp;&amp; request.headers.url === &quot;/hoge&quot;,
+      request =&gt; Task.of(Response.Created({}, encodeText(&quot;Created&quot;)))
+    ]
+  )
+);
+</code></pre>
+<p>The handler can be easily composed using the spread operator.</p>
+
+<pre><code class="lang-js">startHTTPServer(
+  { port: 8080 },
+  route(
+    ...hogeRouteHandlers,
+    ...piyoRouteHandlers,
+    ...fugaRouteHandlers
+  )
+);
+</code></pre>
+<p>The handler will be short-circuited if it&#39;s not passed a <code>Request</code>. This makes it easy to write a
+function to preflight a request.</p>
+<p>For example, if you needed to discard any request that doesn&#39;t accept <code>application/json</code>, you could
+do the following.</p>
+
+<pre><code class="lang-js">import { compose } from &quot;https://deno.land/x/ramda@v0.27.2/mod.ts&quot;;
+
+startHTTPServer(
+  { port: 8080 },
+  compose(
+    route(...routes),
+    request =&gt; request.headers.accept !== &#39;application/json&#39;
+      ? Task.of(Response.BadRequest({}, new Uint8Array([])))
+      : request
+  )
+);
+</code></pre>

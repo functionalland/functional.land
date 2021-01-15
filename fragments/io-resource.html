@@ -1,0 +1,19 @@
+<h2 id="resource">Resource</h2>
+<p>The <code>Resource</code> type extends the <code>Buffer</code> type. It represents a system resource with a handle, eg: STDOUT, STDIN or a
+file. It has two attributes: the first is a typed array named &quot;raw&quot; and the second is the Resource ID (<code>rid</code>).
+Any type that share the <code>Resource</code> attributes is composable and interoperable.</p>
+<p>The <code>Resource</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Bifunctor</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">const resource = Resource(new Uint8Array([ 65, 66, 67, 68, 69 ]), 3)
+  .concat(Resource(new Uint8Array([ 70, 71, 72, 73, 74 ]), 3));
+
+assert(Resource.is(resource));
+</code></pre>

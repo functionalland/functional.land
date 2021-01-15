@@ -1,0 +1,250 @@
+<h2 id="file-system">File System</h2>
+<p><strong>⚠️ Note</strong> <code>Deno.cwd</code> is used in the following example; if you use <code>Deno.cwd</code> to compose your paths, your functions
+are no longer pure.</p>
+<h3 id="-chdir-https-doc-deno-land-builtin-stable-deno-chdir-"><code>chdir</code> <a href="https://doc.deno.land/builtin/stable#Deno.chdir">📕</a></h3>
+<p><code>Directory → Task e Directory</code></p>
+<p>Change the current working directory to the specified path.</p>
+
+<pre><code class="lang-js">import { chdir } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = chdir(Directory(&quot;..&quot;));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-chmod-https-doc-deno-land-builtin-stable-deno-chmod-"><code>chmod</code> <a href="https://doc.deno.land/builtin/stable#Deno.chmod">📕</a></h3>
+<p><code>Number → File → Task e File</code></p>
+<p>Changes the permission of a specific file/directory of specified path. Ignores the process&#39;s umask.</p>
+
+<pre><code class="lang-js">import { chmod } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = chmod(0o000, File.fromPath(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-chown-https-doc-deno-land-builtin-stable-deno-chown-"><code>chown</code> <a href="https://doc.deno.land/builtin/stable#Deno.chown">📕</a></h3>
+<p><code>Number → Number → File → Task e File</code></p>
+<p>Change owner of a regular file or directory. This functionality is not available on Windows.</p>
+
+<pre><code class="lang-js">import { chown } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = chown(null, null, File.fromPath(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-close-https-doc-deno-land-builtin-stable-deno-close-"><code>close</code> <a href="https://doc.deno.land/builtin/stable#Deno.close">📕</a></h3>
+<p><code>Resource → Task e Resource</code></p>
+<p>Close the given resource which has been previously opened, such as via opening or creating a file.
+Closing a file when you are finished with it is important to avoid leaking resources.</p>
+
+<pre><code class="lang-js">import { close } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = close(File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-copy-https-doc-deno-land-builtin-stable-deno-copy-"><code>copy</code> <a href="https://doc.deno.land/builtin/stable#Deno.copy">📕</a></h3>
+<p><code>Object → Buffer a → Buffer b → Task e Buffer b</code></p>
+<p>Copies from a source to a destination until either EOF (null) is read from the source, or an error occurs.</p>
+
+<pre><code class="lang-js">import { copy } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = copy({}, Buffer(new Uint8Array([ 65, 66, 67, 68, 69 ])), Buffer(new Uint8Array([])));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-copyfile-https-doc-deno-land-builtin-stable-deno-copyfile-"><code>copyFile</code> <a href="https://doc.deno.land/builtin/stable#Deno.copyFile">📕</a></h3>
+<p><code>File a → File b → Task e File b</code></p>
+<p>Copies the contents and permissions of one file to another specified file, by default creating a new file if needed,
+else overwriting. Fails if target path is a directory or is unwritable.</p>
+
+<pre><code class="lang-js">import { copyFile } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = copyFile(File.fromPath(`${Deno.cwd()}/hoge`), File.fromPath(`${Deno.cwd()}/piyo`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-create-https-doc-deno-land-builtin-stable-deno-create-"><code>create</code> <a href="https://doc.deno.land/builtin/stable#Deno.create">📕</a></h3>
+<p><code>File → Task e File</code></p>
+<p>Creates a file if none exists or truncates an existing file.</p>
+
+<pre><code class="lang-js">import { create } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = create(File.fromPath(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-cwd-https-doc-deno-land-builtin-stable-deno-cwd-"><code>cwd</code> <a href="https://doc.deno.land/builtin/stable#Deno.cwd">📕</a></h3>
+<p>Return a Directory representation of the current working directory.
+<code>() → Task e Directory</code></p>
+
+<pre><code class="lang-js">import { cwd } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = cwd();
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-ensuredir-https-deno-land-std-0-79-0-fs-ensuredir-"><code>ensureDir</code> <a href="https://deno.land/std@0.79.0/fs#ensuredir">📕</a></h3>
+<p><code>Directory → Task e Directory</code></p>
+<p>Ensures that the directory exists. If the directory structure does not exist, it is created. Like <code>mkdir -p</code>.</p>
+
+<pre><code class="lang-js">import { ensureDir } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = emptyDir(Directory(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-exists-https-deno-land-std-0-79-0-fs-exists-"><code>exists</code> <a href="https://deno.land/std@0.79.0/fs#exists">📕</a></h3>
+<p>`URL → Task e|null URL</p>
+<p>Test whether the given path exists by checking with the file system.
+If the file or directory doesn&#39;t exist, it will resolve to <code>Either.Left(null)</code>.</p>
+
+<pre><code class="lang-js">import { exists } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = exists(Directory(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-mkdir-https-deno-land-std-0-79-0-fs-mkdir-"><code>mkdir</code> <a href="https://deno.land/std@0.79.0/fs#mkdir">📕</a></h3>
+<p><code>Object → Directory → Task e Directory</code></p>
+<p>Creates a new directory with the specified path.</p>
+
+<pre><code class="lang-js">import { mkdir } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = mkdir({}, Directory(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-move-https-deno-land-std-0-79-0-fs-move-"><code>move</code> <a href="https://deno.land/std@0.79.0/fs#move">📕</a></h3>
+<p><code>Object → String → URL → Task e URL</code></p>
+<p>Moves a file or directory.</p>
+
+<pre><code class="lang-js">import { move } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = move({}, `${Deno.cwd()}/piyo`, Directory(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-open-https-doc-deno-land-builtin-stable-deno-open-"><code>open</code> <a href="https://doc.deno.land/builtin/stable#Deno.open">📕</a></h3>
+<p><code>Object → File → Task e File</code></p>
+<p>Open a file and resolve to an instance of File. The file does not need to previously exist if using the create or
+createNew open options. It is the callers responsibility to close the file when finished with it.</p>
+
+<pre><code class="lang-js">import { open } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = open({ read: true, write: true }, File.fromPath(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-read-https-doc-deno-land-builtin-stable-deno-read-"><code>read</code> <a href="https://doc.deno.land/builtin/stable#Deno.read">📕</a></h3>
+<p><code>Resource Task e Resource</code></p>
+<p>Read from a Resource given it has a non-zero raw buffer.</p>
+
+<pre><code class="lang-js">import { read } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = read(File(`${Deno.cwd()}/hoge`, new Uint8Array(5), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-readline-"><code>readLine</code></h3>
+<p><code>Resource → Task e Resource</code></p>
+<p>Read from a Resource to the CLRF.</p>
+
+<pre><code class="lang-js">import { readLine } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = readLine(File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-readnbytes-"><code>readNBytes</code></h3>
+<p><code>Number → Resource → Task e Resource</code></p>
+<p>Read N bytes from a Resource.</p>
+
+<pre><code class="lang-js">import { readNBytes } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = readNBytes(5, File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-readonebyte-"><code>readOneByte</code></h3>
+<p><code>Resource → Task e Resource</code></p>
+<p>Read 1 byte from a Resource.</p>
+
+<pre><code class="lang-js">import { readOneByte } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = readOneByte(File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-readall-https-doc-deno-land-builtin-stable-deno-readall-"><code>readAll</code> <a href="https://doc.deno.land/builtin/stable#Deno.readAll">📕</a></h3>
+<p><code>Resource → Task e Resource</code></p>
+<p>Read from a Resource.</p>
+
+<pre><code class="lang-js">import { readAll } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = readAll(File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-readfile-https-doc-deno-land-builtin-stable-deno-readfile-"><code>readFile</code> <a href="https://doc.deno.land/builtin/stable#Deno.readFile">📕</a></h3>
+<p><code>File → Task e File</code></p>
+<p>Read from a File.</p>
+
+<pre><code class="lang-js">import { readFile } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = readFile(File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-remove-https-doc-deno-land-builtin-stable-deno-remove-"><code>remove</code> <a href="https://doc.deno.land/builtin/stable#Deno.remove">📕</a></h3>
+<p><code>Object → URL → Task e URL</code></p>
+<p>Removes the named file or directory.</p>
+
+<pre><code class="lang-js">import { remove } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = remove({ recursive: true }, Directory.fromPath(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-rename-https-doc-deno-land-builtin-stable-deno-rename-"><code>rename</code> <a href="https://doc.deno.land/builtin/stable#Deno.rename">📕</a></h3>
+<p><code>String → URL → Task e URL</code></p>
+<p>Renames a file or directory.</p>
+
+<pre><code class="lang-js">import { rename } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = rename(`${Deno.cwd()}/piyo`, Directory(`${Deno.cwd()}/hoge`));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-write-https-doc-deno-land-builtin-stable-deno-write-"><code>write</code> <a href="https://doc.deno.land/builtin/stable#Deno.write">📕</a></h3>
+<p><code>Resource → Task e Resource</code></p>
+<p>Write to a Resource given it has a non-zero raw buffer.</p>
+
+<pre><code class="lang-js">import { write } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = write(File(`${Deno.cwd()}/hoge`, new Uint8Array([ 65, 66, 67, 68, 69 ]), 3));
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-writeall-https-doc-deno-land-builtin-stable-deno-writeall-"><code>writeAll</code> <a href="https://doc.deno.land/builtin/stable#Deno.writeAll">📕</a></h3>
+<p><code>Buffer → Task e Resource</code></p>
+<p>Write all to a Resource from a Buffer.</p>
+
+<pre><code class="lang-js">import { writeAll } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = writeAll(
+  Buffer(new Uint8Array([ 65, 66, 67, 68, 69 ])),
+  File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3)
+);
+
+assert(Task.is(container));
+</code></pre>
+<h3 id="-writefile-https-doc-deno-land-builtin-stable-deno-writefile-"><code>writeFile</code> <a href="https://doc.deno.land/builtin/stable#Deno.writeFile">📕</a></h3>
+<p><code>Object → File → Task e File</code></p>
+<p>Write a File to the file system.</p>
+
+<pre><code class="lang-js">import { writeFile } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+
+const container = writeFile({}, File(`${Deno.cwd()}/hoge`, new Uint8Array([]), 3));
+
+assert(Task.is(container));
+</code></pre>

@@ -1,0 +1,23 @@
+<h2 id="either">Either</h2>
+<p>The <code>Either</code> is a sum type similar to <code>Maybe</code>, but it differs in that a value can be of two possible types
+(Left or Right). Commonly the Left type represents an error.</p>
+<p>The <code>Either</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Alternative</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">import Either from &quot;https://deno.land/x/functional@v1.3.4/library/Either.js&quot;;
+
+const containerA = Either.Right(42).map(x =&gt; x + 2);
+const containerB = Either.Left(new Error(&quot;The value is not 42.&quot;)).map(x =&gt; x + 2);
+const containerC = containerB.alt(containerA);
+
+assert(Either.Right.is(containerA));
+assert(containerA.extract() === 44);
+assert(Either.Left.is(containerB));
+assert(Either.Right.is(containerC));
+</code></pre>

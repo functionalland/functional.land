@@ -1,0 +1,166 @@
+<h2 id="client">Client</h2>
+<p>The client module provides various utility functions to interact with a Redis server.</p>
+<h3 id="-decoderedisresponse-"><code>decodeRedisResponse</code></h3>
+<p><code>RedisResponse → *</code></p>
+<p>This functions takes a <code>RedisResponse</code> and, returns the most appropriate JavaScript primitive.
+For example, <a href="https://redis.io/commands#string">string command&#39;s</a> response would return a string and,
+<a href="https://redis.io/commands#hash">hash command&#39;s</a> response would return an array...</p>
+<h3 id="-parseredisresponse-"><code>parseRedisResponse</code></h3>
+<p><code>RedisResponse → Buffer</code></p>
+<p>This functions takes a <code>RedisResponse</code> and, returns a <code>Buffer</code> which can be interoperated cleanly with <code>RedisRequest</code>,
+<a href="https://github.com/sebastienfilion/functional-io#resource"><code>Resource</code></a>,
+<a href="https://github.com/sebastienfilion/functional-io#file"><code>File</code></a> and,
+<a href="https://github.com/sebastienfilion/functional-io#request"><code>(HTTP) Request</code></a>.</p>
+<h3 id="-connectredisclient-"><code>connectRedisClient</code></h3>
+<p><code>Object → Task Resource</code></p>
+<p>This function takes an object for the connection options and, return a
+<a href="https://github.com/sebastienfilion/functional#task-type"><code>Task</code></a> of a <code>Resource</code>.</p>
+
+<pre><code class="lang-js">import { connectRedisClient } from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+
+const container = await connectRedisClient({ port: 6379 }).run();
+const redisResource = safeExtract(&quot;Failed to connect the client.&quot;, container);
+</code></pre>
+<h3 id="-disconnectredisclient-"><code>disconnectRedisClient</code></h3>
+<p><code>Resource → Task Resource</code></p>
+<p>This function takes a Resource and, return a
+<a href="https://github.com/sebastienfilion/functional#task-type"><code>Task</code></a> of a <code>Resource</code>.</p>
+
+<pre><code class="lang-js">import { disconnectRedisClient } from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+
+await disconnectRedisClient(redisResource).run();
+</code></pre>
+<h3 id="-executerediscommand-"><code>executeRedisCommand</code></h3>
+<p><code>RedisRequest → Resource → Task RedisResponse</code></p>
+<p>This curried function accepts a <code>RedisRequest</code> and a <code>Resource</code> that represents a connection to the Redis server
+and, returns a <a href="https://github.com/sebastienfilion/functional#task-type"><code>Task</code></a> of a <code>RedisResponse</code>.</p>
+
+<pre><code class="lang-js">import { safeExtract } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import { executeRedisCommand } from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisRequest.js&quot;;
+import RedisResponse from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisResponse.js&quot;;
+
+const container = await executeRedisCommand(
+  RedisRequest.set({}, &quot;hoge&quot;, &quot;piyo&quot;),
+  redisResource
+).run();
+const redisResponse = safeExtract(&quot;Failed to execute the command..&quot;, container);
+
+assert(RedisResponse.is(redisResponse));
+</code></pre>
+<h3 id="-executerediscommandpipeline-"><code>executeRedisCommandPipeline</code></h3>
+<p><code>RedisRequest[] → Resource → Task RedisResponse[]</code></p>
+<p>This curried function accepts an array of <code>RedisRequest</code> and, a <code>Resource</code> that represents a connection to the Redis
+server. The function returns a <a href="https://github.com/sebastienfilion/functional#task-type"><code>Task</code></a> of an array of
+<code>RedisResponse</code>.
+<em>Do not confuse this function with <code>pipeRedisCommand</code>; the term &quot;pipeline&quot; refers to the
+<a href="https://redis.io/topics/pipelining">ability of a Redis server</a> to parse multiple request at a time.</em></p>
+
+<pre><code class="lang-js">import { safeExtract } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import { executeRedisCommandPipeline } from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisRequest.js&quot;;
+import RedisResponse from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisResponse.js&quot;;
+
+const container = await executeRedisCommandPipeline(
+  [
+    RedisRequest.set({}, &quot;hoge&quot;, &quot;piyo&quot;),
+    RedisRequest.get(&quot;hoge&quot;)
+  ],
+  redisResource
+).run();
+const redisResponseList = safeExtract(&quot;Failed to execute the command..&quot;, container);
+
+assert(redisResponseList.every(RedisResponse.is));
+</code></pre>
+<h3 id="-createredissession-"><code>createRedisSession</code></h3>
+<p><code>(Resource → Task *) → Object → Task Resource</code></p>
+<p>This function takes an unary function that accepts a <code>Resource</code> that represents a connection to the Redis server and,
+Return a <a href="https://github.com/sebastienfilion/functional#task-type"><code>Task</code></a>.</p>
+<p>This functions will sequentially connect to the Redis server, execute the unary function and, finally disconnect.</p>
+
+<pre><code class="lang-js">const setHoge = createRedisSession(executeRedisCommand(RedisRequest.set({}, &quot;hoge&quot;, &quot;piyo&quot;)));
+
+const container = await setHoge({ port: 6379 }).run();
+
+safeExtract(&quot;Failed to read the response.&quot;, container);
+</code></pre>
+<p>The function resolves to a <code>Task</code> of the <code>Resource</code>; if you need to access the <code>RedisResponse</code>, the unary function
+should compose with the handler.</p>
+
+<pre><code class="lang-js">import { safeExtract } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import File from &quot;https://deno.land/x/functional_io@v1.1.0/library/File.js&quot;;
+import { writeFile } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+import {
+  createRedisSession,
+  executeRedisCommand
+} from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisRequest.js&quot;;
+
+const writeHogeToFile = createRedisSession(
+  compose(
+    chain(
+      compose(
+        writeFile({}),
+        concat(File.fromPath(`${Deno.cwd()}/hoge`)),
+        parseRedisResponse
+      )
+    ),
+    executeRedisCommand(RedisRequest.get(&quot;hoge&quot;))
+  )
+);
+
+const containerB = await writeHogeToFile({ port: 6379 }).run();
+
+safeExtract(&quot;Failed to read the response.&quot;, containerB);
+</code></pre>
+<h3 id="-executerediscommandwithsession-"><code>executeRedisCommandWithSession</code></h3>
+<p><code>Object → RedisRequest → Task RedisResponse</code></p>
+<p>This curried function accepts an object for the options of the connection and, a <code>RedisRequest</code>. The return value is
+a <a href="https://github.com/sebastienfilion/functional#task-type"><code>Task</code></a> of a <code>RedisResponse</code>.</p>
+<p>This is a convenience function that composes <code>createRedisSession</code> and <code>executeRedisCommand</code></p>
+
+<pre><code class="lang-js">import { safeExtract } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import { executeRedisCommandWithSession } from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisRequest.js&quot;;
+
+const container = await executeRedisCommandWithSession(
+  { port: 6379 },
+  RedisRequest(&quot;SET&quot;, new Uint8Array([]), [ &quot;hoge&quot;, &quot;piyo&quot; ])
+).run();
+
+safeExtract(&quot;Failed to read the response.&quot;, container);
+`
+</code></pre>
+<h3 id="-piperediscommand-"><code>pipeRedisCommand</code></h3>
+<p><code>(RedisRequest|(* → RedisRequest))[] → Resource → Task RedisResponse</code></p>
+<p>This curried function accepts an array of <code>RedisRequest</code> or a function that would return a <code>RedisRequest</code> and, a
+<code>Resource</code> that represents a connection to the Redis server. The return value is a
+<a href="https://github.com/sebastienfilion/functional#task-type"><code>Task</code></a> of the <code>RedisResponse</code> of the last <code>RedisRequest</code>.</p>
+<p>This function will execute all Redis requests sequentially and optionally pipe the previous response into the next
+request.</p>
+
+<pre><code class="lang-js">import { safeExtract } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import {
+  createRedisSession,
+  pipeRedisCommand
+} from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisRequest.js&quot;;
+
+const copyHogeToFuga = createRedisSession(
+  compose(
+    pipeRedisCommand(
+      [
+        RedisRequest.set({}, &quot;hoge&quot;, &quot;piyo&quot;),
+        RedisRequest.get(&quot;hoge&quot;),
+        RedisRequest.set({}, &quot;fuga&quot;)
+      ]
+    )
+  )
+);
+
+const container = await copyHogeToFuga({ port: 6379 }).run();
+
+safeExtract(&quot;Failed to read the response.&quot;, container);
+</code></pre>
+<p><em>This example works because <code>RedisRequest.set</code> is a curried function that requires 3 arguments and, returns a
+<code>RedisRequest</code>.</em></p>

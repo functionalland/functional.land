@@ -1,0 +1,15 @@
+<h2 id="browser-safe">Browser safe</h2>
+<h3 id="-purefetch-"><code>pureFetch</code></h3>
+<p><code>Request → Task e Response</code></p>
+<p>Fetches a resource on a local/remote server.</p>
+
+<pre><code class="lang-js">import { fetch } from &quot;https://deno.land/x/functional_io@v1.1.0/library/browser-safe.js&quot;;
+
+const containerA = fetch(Request.GET(&quot;http://localhost:8000&quot;));
+
+assert(Task.is(containerA));
+
+const containerB = await container.run().extract();
+
+assert(Response.Success.is(containerB));
+</code></pre>

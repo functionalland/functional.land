@@ -1,0 +1,16 @@
+<h2 id="url">URL</h2>
+<p>The <code>URL</code> type represents an URL; either of a location on the file system or on a remote server.
+It has only one attributes: the path of the URL.
+A <code>URL</code> is interoperable with a <code>File</code> or a <code>Directory</code>.
+It also has interoperability with a <code>File</code> or a <code>Directory</code> through the <code>FileSystemCollection</code> type.</p>
+<p>The <code>URL</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Ord</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">assert(URL(`${Deno.cwd()}/hoge`).lte(URL(`${Deno.cwd()}/piyo`)));
+</code></pre>

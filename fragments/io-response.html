@@ -1,0 +1,146 @@
+<h2 id="response">Response</h2>
+<p>The <code>Response</code> represent a HTTP response.
+It has two attributes: the first is an object for the response &quot;header&quot; and the second is a typed array named &quot;raw&quot;.
+The <code>Response</code> type is mostly interoperable with <code>Resource</code>, <code>File</code> and <code>Request</code>.</p>
+<p>The <code>Resource</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Alternative</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Bifunctor</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">const response = Response.Success({}, new Uint8Array([ 65, 66, 67, 68, 69 ]))
+  .concat(Resource(new Uint8Array([ 70, 71, 72, 73, 74 ]), 3));
+
+assert(Response.is(response));
+</code></pre>
+<h4 id="utilities">Utilities</h4>
+<p>The <code>Response</code> namespace comes with 38 methods for convenience to create an instance of <code>Response</code> with a common
+status.
+The methods are curried: <code>Object → Uint8Array → Response</code></p>
+
+<pre><code class="lang-js">const container = compose(
+  lift(Response.OK({ [&quot;Content-Type&quot;]: &quot;application/json&quot; })),
+  readFile
+)(File.fromPath(`${Deno.cwd()}/hoge`));
+
+assert((await container.run()).extract().headers.status === 200);
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Method name</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OK</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>Created</code></td>
+<td>201</td>
+</tr>
+<tr>
+<td><code>Accepted</code></td>
+<td>202</td>
+</tr>
+<tr>
+<td><code>NoContent</code></td>
+<td>204</td>
+</tr>
+<tr>
+<td><code>MultipleChoice</code></td>
+<td>300</td>
+</tr>
+<tr>
+<td><code>MovePermanently</code></td>
+<td>301</td>
+</tr>
+<tr>
+<td><code>Found</code></td>
+<td>302</td>
+</tr>
+<tr>
+<td><code>NotModified</code></td>
+<td>304</td>
+</tr>
+<tr>
+<td><code>TemporaryRedirect</code></td>
+<td>307</td>
+</tr>
+<tr>
+<td><code>PermanentRedirect</code></td>
+<td>308</td>
+</tr>
+<tr>
+<td><code>BadRequest</code></td>
+<td>400</td>
+</tr>
+<tr>
+<td><code>Unauthorized</code></td>
+<td>401</td>
+</tr>
+<tr>
+<td><code>Forbidden</code></td>
+<td>403</td>
+</tr>
+<tr>
+<td><code>NotFound</code></td>
+<td>404</td>
+</tr>
+<tr>
+<td><code>MethodNotAllowed</code></td>
+<td>405</td>
+</tr>
+<tr>
+<td><code>NotAcceptable</code></td>
+<td>406</td>
+</tr>
+<tr>
+<td><code>RequestTimeout</code></td>
+<td>408</td>
+</tr>
+<tr>
+<td><code>Conflict</code></td>
+<td>409</td>
+</tr>
+<tr>
+<td><code>Gone</code></td>
+<td>410</td>
+</tr>
+<tr>
+<td><code>ImATeapot</code></td>
+<td>418</td>
+</tr>
+<tr>
+<td><code>InternalServerError</code></td>
+<td>500</td>
+</tr>
+<tr>
+<td><code>NotImplemented</code></td>
+<td>501</td>
+</tr>
+<tr>
+<td><code>BadGateway</code></td>
+<td>502</td>
+</tr>
+<tr>
+<td><code>ServiceUnavailable</code></td>
+<td>503</td>
+</tr>
+<tr>
+<td><code>GatewayTimeout</code></td>
+<td>504</td>
+</tr>
+<tr>
+<td><code>PermissionDenied</code></td>
+<td>550</td>
+</tr>
+</tbody>
+</table>

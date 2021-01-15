@@ -85,6 +85,9 @@ body {
   line-height: 1.6em;
   margin: 0;
   padding: 0;
+  transition-duration: 0.06s;
+  transition-timing-function: ease-in;
+  transition-property: background-color, border, border-top-color, border-right-color, border-bottom-color, border-left-color, color, fill, stroke;
 }
 
 body > header {
@@ -100,6 +103,43 @@ body > header {
   height: 3.5rem;
   padding: 0 1.5rem;
   width: 100%;
+}
+
+a, a:active, a:hover, a:visited {
+  color: var(--color-blue);
+}
+
+table {
+  border-collapse: collapse;
+  box-sizing: border-box;
+  margin: 3.5rem auto;
+  padding: 0 3.5rem;
+  min-width: 460px;
+  width: 80%;
+}
+
+th {
+  font-weight: 500;
+  font-size: 0.6875em;
+  letter-spacing: 0.09rem;
+  margin: 1.125rem 0;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+tbody tr {
+  background-color: var(--color-gray-5);
+  border-bottom-color: var(--color-article-separator);
+  border-bottom-style: solid;
+  border-bottom-width: 0.0625rem;
+}
+
+tbody tr:last-child {
+  border-bottom-style: none;
+}
+
+thead th, tbody td {
+  padding: 1rem;
 }
 
 #top-bar-container {
@@ -174,6 +214,7 @@ main article h1,
 main article h2,
 main article h3,
 main article h4,
+main article h5,
 main article p,
 main article ul {
   margin: 0 5.125rem 1em 5.125rem;
@@ -195,11 +236,11 @@ header p {
   font-size: 1.125em;
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5 {
   font-weight: 500;
 }
 
-h1 a, h2 a, h3 a, h4 a {
+h1 a, h2 a, h3 a, h4 a, h5 a {
   color: inherit;
   text-decoration: none;
 }
@@ -220,8 +261,19 @@ h4 {
   font-size: 1em;
 }
 
-h1, h2, h3, h4 {
+h5 {
+  font-size: 1em;
+}
+
+h1, h2, h3, h4, h5 {
   position: relative;
+}
+
+hr {
+  background-color: var(--color-article-separator);
+  border: none;
+  height: 0.0625rem;
+  margin: 5.125rem 0;
 }
 
 .heading-anchor {
@@ -232,8 +284,20 @@ h1, h2, h3, h4 {
   width: 1.375rem;
 }
 
-h1:hover .heading-anchor, h2:hover .heading-anchor, h3:hover .heading-anchor, h4:hover .heading-anchor {
+h1 .heading-anchor, h2 .heading-anchor, h3 .heading-anchor, h4 .heading-anchor, h5 .heading-anchor {
+  height: 1em;
+}
+
+h1:hover .heading-anchor,
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+h4:hover .heading-anchor,
+h5:hover .heading-anchor {
   stroke: var(--color-gray-2);
+}
+
+h1 a + code, h2 a + code, h3 a + code, h4 a + code, h5 a + code, p code:first-child {
+  margin-left: -0.3rem;
 }
 
 p {
@@ -254,10 +318,6 @@ code {
   font-size: 0.875em;
   line-height: 1.6em;
   padding: 0.3rem 0.6rem;
-}
-
-p code:first-child {
-  margin-left: 0;
 }
 
 p code:last-child {

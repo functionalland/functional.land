@@ -1,0 +1,91 @@
+<h2 id="utilities">Utilities</h2>
+<h3 id="-findclrfindex-"><code>findCLRFIndex</code></h3>
+<p><code>Uint8Array → Number</code></p>
+<p>This function takes a <code>Uint8Array</code> and, returns the index of the last character of the first CLRF sequence
+encountered.</p>
+
+<pre><code class="lang-js">import { findCLRFIndex } from &quot;https://deno.land/x/functional_io@v1.1.0/library/utilities.js&quot;;
+
+assertEquals(findCLRFIndex(new Uint8Array([ 104, 111, 103, 101, 13, 10 ])), 6);
+</code></pre>
+<h3 id="-discardfirstline-"><code>discardFirstLine</code></h3>
+<p><code>Uint8Array → Uint8Array</code></p>
+<p>This function takes a <code>Uint8Array</code> and, returns the typed array minus the first line separated by CLRF.</p>
+
+<pre><code class="lang-js">import { discardFirstLine } from &quot;https://deno.land/x/functional_io@v1.1.0/library/utilities.js&quot;;
+
+assertEquals(
+  discardFirstLine(new Uint8Array([ 104, 111, 103, 101, 13, 10, 104, 111, 103, 101, 13, 10 ])),
+  new Uint8Array([ 104, 111, 103, 101, 13, 10 ])
+);
+</code></pre>
+<h3 id="-discardncharacter-"><code>discardNCharacter</code></h3>
+<p><code>Number → Uint8Array → Uint8Array</code></p>
+<p>This function takes a Number, a <code>Uint8Array</code> and, returns the typed array minus the specified amount of character
+starting from the left side.</p>
+
+<pre><code class="lang-js">import { discardNCharacter } from &quot;https://deno.land/x/functional_io@v1.1.0/library/utilities.js&quot;;
+
+assertEquals(
+  discardNCharacter(1, new Uint8Array([ 104, 111, 103, 101, 13, 10 ])),
+  new Uint8Array([ 111, 103, 101, 13, 10 ])
+);
+</code></pre>
+<h3 id="-getfirstline-"><code>getFirstLine</code></h3>
+<p><code>Uint8Array → Uint8Array</code></p>
+<p>This function takes a <code>Uint8Array</code> and, returns the first line separated by a CLRF inclusively.</p>
+
+<pre><code class="lang-js">import { getFirstLine } from &quot;https://deno.land/x/functional_io@v1.1.0/library/utilities.js&quot;;
+
+assertEquals(
+  getFirstLine(new Uint8Array([ 104, 111, 103, 101, 13, 10, 104, 111, 103, 101, 13, 10 ])),
+  new Uint8Array([ 104, 111, 103, 101, 13, 10 ])
+);
+</code></pre>
+<h3 id="-joinclrf-"><code>joinCLRF</code></h3>
+<p><code>Uint8Array[] → Uint8Array</code></p>
+<p>This function takes a list of <code>Uint8Array</code> and, returns a <code>Uint8Array</code> of the list joined with CLRF sequence; the
+function is analogous to <code>Array#join</code>.</p>
+
+<pre><code class="lang-js">import { joinCLRF } from &quot;https://deno.land/x/functional_io@v1.1.0/library/utilities.js&quot;;
+
+assertEquals(
+  joinCLRF(
+    [
+      new Uint8Array([ 104, 111, 103, 101 ]),
+      new Uint8Array([ 104, 111, 103, 101 ])
+    ]
+  ),
+  new Uint8Array([ 104, 111, 103, 101, 13, 10, 104, 111, 103, 101, 13, 10 ])
+);
+</code></pre>
+<h3 id="-splitclrf-"><code>splitCLRF</code></h3>
+<p><code>Uint8Array → Uint8Array[]</code></p>
+<p>This function takes a <code>Uint8Array</code> and, returns a list of <code>Uint8Array</code> of subarray split at the CLRF sequence; the
+function is analogous to <code>String#split</code>.</p>
+
+<pre><code class="lang-js">import { splitCLRF } from &quot;https://deno.land/x/functional_io@v1.1.0/library/utilities.js&quot;;
+
+assertEquals(
+  splitCLRF(new Uint8Array([ 104, 111, 103, 101, 13, 10, 104, 111, 103, 101, 13, 10 ])),
+  [
+    new Uint8Array([ 104, 111, 103, 101, 13, 10 ]),
+    new Uint8Array([ 104, 111, 103, 101, 13, 10 ])
+  ]
+);
+</code></pre>
+<h3 id="-trimcrlf-"><code>trimCRLF</code></h3>
+<p><code>Uint8Array → Uint8Array</code></p>
+<p>This function takes a <code>Uint8Array</code> and, returns a typed array minus CRLF at the beginning and at the end;
+the function is analogous to <code>String#trim</code>.</p>
+
+<pre><code class="lang-js">import { trimCRLF } from &quot;https://deno.land/x/functional_io@v1.1.0/library/utilities.js&quot;;
+
+assertEquals(
+  trimCRLF(new Uint8Array([ 104, 111, 103, 101, 13, 10 ])),
+  new Uint8Array([ 104, 111, 103, 101 ])
+);
+</code></pre>
+<h3 id="-factorizeuint8array-"><code>factorizeUint8Array</code></h3>
+<p>`Number|Array|Uint8Array → Uint8Array</p>
+<p>This function factorize a Uint8Array given an argument.</p>

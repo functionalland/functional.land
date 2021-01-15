@@ -1,0 +1,123 @@
+<h2 id="utilities">Utilities</h2>
+<h3 id="-assertisarray-"><code>assertIsArray</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisboolean-"><code>assertIsBoolean</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisfunction-"><code>assertIsFunction</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisinstance-"><code>assertIsInstance</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisnull-"><code>assertIsNull</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisnumber-"><code>assertIsNumber</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisobject-"><code>assertIsObject</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisregex-"><code>assertIsRegex</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisstring-"><code>assertIsString</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-assertisundefined-"><code>assertIsUndefined</code></h3>
+<p><code>* → Boolean</code></p>
+<h3 id="-decoderaw-"><code>decodeRaw</code></h3>
+<p><code>Uint8Array → String</code></p>
+<h3 id="-encodetext-"><code>encodeText</code></h3>
+<p><code>String → Uint8Array</code></p>
+<h3 id="-alt-"><code>alt</code></h3>
+<p><code>Alt a → Alt b → Alt a|b</code></p>
+<p>This function takes a container of any type and, an Alternative functor. Then it returns either the container or the
+alternative functor.
+The function is in support of the <a href="https://github.com/fantasyland/fantasy-land#alt">Alt algebra</a>.</p>
+
+<pre><code class="lang-js">import Either from &quot;https://deno.land/x/functional@v1.3.4/library/Either.js&quot;;
+import { alt } from &quot;https://deno.land/x/functional@v1.3.4/library/utilities.js&quot;;
+
+const container = alt(Either.Right(42), Either.Left(&quot;Not the meaning of life&quot;));
+
+assertEquals(container.extract(), 42);
+</code></pre>
+<h3 id="-chainlift-"><code>chainLift</code></h3>
+<p><code>(a → b → c) → Chainable a → Functor b → Chainable c</code></p>
+<p>This function is similar to <a href="https://ramdajs.com/docs/#lift"><code>lift</code></a> but is chainable.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.4/library/Task.js&quot;;
+import { chainLift } from &quot;https://deno.land/x/functional@v1.3.4/library/utilities.js&quot;;
+
+const hogeFuga = useWith(
+  chainLift(curry((x, y) =&gt; Task.of(x * y))),
+  [
+    x =&gt; Task.of(x),
+    x =&gt; Task.of(x)
+  ]
+);
+
+const container = await hogeFuga(42, 24).run();
+
+const value = safeExtract(&quot;Failed.&quot;, container);
+
+assertEquals(value, 1008);
+</code></pre>
+<h3 id="-chainrec-"><code>chainRec</code></h3>
+<p><code>ChainRec r =&gt; ((a → c, b → c, a) → r c) → a → r b</code></p>
+<p>This function is a combinator for the <a href="https://github.com/fantasyland/fantasy-land#chainrec"><code>chainRec</code> algebra</a>.
+It takes a ternary function, an initial value and, a chainable recursive functor.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.4/library/Task.js&quot;;
+import { chainRec } from &quot;https://deno.land/x/functional@v1.3.4/library/utilities.js&quot;;
+
+const multiplyAll = curry((x, n) =&gt; chainRec(
+  (Loop, Done, cursor) =&gt;
+    cursor === n ? Done(Pair(cursor, null)) : Loop(Pair(cursor + 1, Task.of([ x * (cursor + 1) ]))),
+  0
+));
+
+const container = await multiplyAll(42, 10)(Task.of([ 0 ])).run();
+
+const value = safeExtract(&quot;Failed.&quot;, container);
+
+assertEquals(value, [ 0, 42, 84, 126, 168, 210, 252, 294, 336, 378, 420 ]);
+</code></pre>
+<h3 id="-evert-"><code>evert</code></h3>
+<p><code>Applicative a =&gt; a → a[] → a</code></p>
+<p>This function takes a type constructor and, a list of Applicative functor and evert it; effectively making an Applicative
+functor of a list of value.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.4/library/Task.js&quot;;
+import { evert } from &quot;https://deno.land/x/functional@v1.3.4/library/utilities.js&quot;;
+
+const container = await evert(Task, [ Task.of(42), Task.of(32), Task.of(24) ]).run();
+
+const list = safeExtract(&quot;Failed.&quot;, container);
+
+assertEquals(list, [ 42, 32, 24 ]);
+</code></pre>
+<h3 id="-log-"><code>log</code></h3>
+<p><code>String → a → a</code></p>
+<p>This function is a composable <code>console.debug</code>. It takes a message, a value and, return the value.</p>
+<h3 id="-runsequentially-"><code>runSequentially</code></h3>
+<p><code>Chain c =&gt; (...c) → c</code></p>
+<p>This function takes n Chainable functor and chain them automatically.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.4/library/Task.js&quot;;
+import { runSequentially } from &quot;https://deno.land/x/functional@v1.3.4/library/utilities.js&quot;;
+
+const fuga = converge(
+  runSequentially,
+  [
+    x =&gt; Task.of(x * 2),
+    x =&gt; Task.of(x + 2)
+  ]
+);
+
+const container = await fuga(42).run();
+
+const value = safeExtract(&quot;Failed.&quot;, container);
+
+assertEquals(value, 44);
+</code></pre>
+<h3 id="-safeextract-"><code>safeExtract</code></h3>
+<p><code>String → Either a → a</code></p>
+<p>This function takes a message and an Either container; if the container is <code>Either.Right</code>, the value will be
+returned. But if the container is <code>Either.Left</code>, it will throw an error with the message passed.</p>
+<h3 id="-stream-"><code>stream</code></h3>
+<p><code>((a, b) → a) → a → AsyncIterable b → a</code></p>

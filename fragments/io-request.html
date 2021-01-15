@@ -1,0 +1,61 @@
+<h2 id="request">Request</h2>
+<p>The <code>Request</code> represent a HTTP request.
+It has two attributes: the first is an object for the response &quot;header&quot; and the second is a typed array named &quot;raw&quot;.
+The <code>Request</code> type is mostly interoperable with <code>Resource</code>, <code>File</code> and <code>Response</code>.</p>
+<p>The <code>Resource</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Bifunctor</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">const request = Request({}, new Uint8Array([ 65, 66, 67, 68, 69 ]))
+  .concat(Resource(new Uint8Array([ 70, 71, 72, 73, 74 ]), 3));
+
+assert(Request.is(request));
+</code></pre>
+<h4 id="utilities">Utilities</h4>
+<p>The <code>Request</code> namespace comes with 4 methods for convenience to create an instance of <code>Request</code> with a common verb.
+The methods are curried when necessary. <code>Object → Unint8Array → Response</code></p>
+
+<pre><code class="lang-js">const container = compose(
+  lift(Request.post({ [&quot;Content-Type&quot;]: &quot;application/json&quot; })),
+  readFile
+)(File.fromPath(`${Deno.cwd()}/hoge`));
+
+assert((await container.run()).extract().headers.method === &quot;POST&quot;);
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Method name</th>
+<th>Has 2 arguments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>delete</code></td>
+<td><code>DELETE</code></td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>get</code></td>
+<td><code>GET</code></td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>post</code></td>
+<td><code>POST</code></td>
+<td>true</td>
+</tr>
+<tr>
+<td><code>put</code></td>
+<td><code>PUT</code></td>
+<td>true</td>
+</tr>
+</tbody>
+</table>
+<p>✢ <em>The capitalized version of the methods were added because <code>delete</code> is a TypeScript reserved word.</em></p>

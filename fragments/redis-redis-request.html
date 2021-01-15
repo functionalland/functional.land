@@ -1,0 +1,472 @@
+<h2 id="redis-request">Redis Request</h2>
+<p>The <code>RedisRequest</code> represents a Redis request.
+It has three attributes: the first is the Redis command, the second is a typed array named &quot;raw&quot;, the last is an
+array of arguments.
+The <code>RedisRequest</code> type is mostly interoperable with <code>RedisResponse</code>, <a href="https://github.com/sebastienfilion/functional-io#resource"><code>Resource</code></a>,
+<a href="https://github.com/sebastienfilion/functional-io#file"><code>File</code></a>, <a href="https://github.com/sebastienfilion/functional-io#request"><code>(HTTP) Request</code></a><br>and <a href="https://github.com/sebastienfilion/functional-io#response"><code>(HTTP) Response</code></a>.</p>
+<p>The <code>RedisRequest</code> type implements the following algebras:</p>
+
+<ul>
+<li><input type="checkbox" checked="checked" disabled /><label>Group</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Comonad</label></li>
+<li><input type="checkbox" checked="checked" disabled /><label>Monad</label></li>
+</ul>
+<h3 id="example">Example</h3>
+
+<pre><code class="lang-js">import RedisRequest from &quot;https://deno.land/x/functional-redis@v0.1.1/library/RedisRequest.js&quot;;
+
+const redisRequest = RedisRequest(&quot;GET&quot;, new Uint8Array([]), [ &quot;hoge&quot; ]);
+
+assert(RedisRequest.is(redisRequest));
+</code></pre>
+<p>A Symbol named <code>rawPlaceholder</code> may be used as a placeholder for the buffer.
+In the following example, the request will resolve to: <code>SET hoge piyo</code>.</p>
+
+<pre><code class="lang-js">import { encodeText } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional-redis@v0.1.1/library/RedisRequest.js&quot;;
+import { $$rawPlaceholder } from &quot;https://deno.land/x/functional-redis@v0.1.0/library/Symbol.js&quot;;
+
+const redisRequest = RedisRequest(&quot;SET&quot;, encodeText(&quot;piyo&quot;), [ &quot;hoge&quot;, $$rawPlaceholder ]);
+
+assert(RedisRequest.is(redisRequest));
+</code></pre>
+<p>The placeholder can be used multiple times if the buffer has multiple values separated by CLRF (<code>\r\n</code>).</p>
+
+<pre><code class="lang-js">import { encodeText } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional-redis@v0.1.1/library/RedisRequest.js&quot;;
+import { $$rawPlaceholder } from &quot;https://deno.land/x/functional-redis@v0.1.0/library/Symbol.js&quot;;
+
+const redisRequest = RedisRequest(
+  &quot;MSET&quot;,
+  encodeText(&quot;piyo\r\nfuga\r\n&quot;),
+  [ &quot;hoge&quot;, $$rawPlaceholder, &quot;hogefuga&quot;, $$rawPlaceholder ]
+);
+
+assert(RedisRequest.is(redisRequest));
+</code></pre>
+<h3 id="utilities">Utilities</h3>
+<p>The <code>RedisRequest</code> namespace comes with methods for convenience to create an instance of <code>RedisRequest</code> with various
+commands. The methods are curried.</p>
+<h4 id="-factorizeredisrequest-"><code>factorizeRedisRequest</code></h4>
+<p><code>String → Uint8Array → (String|Symbol)[] → RedisRequest</code></p>
+<p>This curried function takes a string for the name of the Redis command, a (optionally empty) <code>Uint8Array</code> and, an
+array for the arguments. The return value is an instance of <code>RedisRequest</code>.</p>
+<hr>
+<h4 id="string-commands">String commands</h4>
+<h5 id="redisrequest-append-https-redis-io-commands-append-">RedisRequest<code>.append</code> <a href="https://redis.io/commands/append">📕</a></h5>
+<p><code>String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.append(&quot;hoge&quot;, &quot;piyo&quot;);
+</code></pre>
+<h5 id="redisrequest-bitcount-https-redis-io-commands-bitcount-">RedisRequest<code>.bitcount</code> <a href="https://redis.io/commands/bitcount">📕</a></h5>
+<p><code>String → [ Number, Number ] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.bitcount(&quot;hoge&quot;, [ 0, 1 ]);
+</code></pre>
+<h5 id="redisrequest-bitfield-https-redis-io-commands-bitfield-">RedisRequest<code>.bitfield</code> <a href="https://redis.io/commands/bitfield">📕</a></h5>
+<p><code>String → String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.bitfield(&quot;hoge&quot;, [ &quot;GET&quot;, &quot;i8&quot;, 100 ]);
+</code></pre>
+<h5 id="redisrequest-bitop-https-redis-io-commands-bitop-">RedisRequest<code>.bitop</code> <a href="https://redis.io/commands/bitop">📕</a></h5>
+<p><code>String → String → String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.bitop(&quot;AND&quot;, &quot;hoge&quot;, [ &quot;piyo&quot;, &quot;fuga&quot; ]);
+</code></pre>
+<h5 id="redisrequest-bitpos-https-redis-io-commands-bitpos-">RedisRequest<code>.bitpos</code> <a href="https://redis.io/commands/bitpos">📕</a></h5>
+<p><code>String → [ Number, Number ] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.bitpos(&quot;hoge&quot;, [ 0, 1 ]);
+</code></pre>
+<h5 id="redisrequest-decr-https-redis-io-commands-decr-">RedisRequest<code>.decr</code> <a href="https://redis.io/commands/decr">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.decr(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-decrby-https-redis-io-commands-decrby-">RedisRequest<code>.decrby</code> <a href="https://redis.io/commands/decrby">📕</a></h5>
+<p><code>String → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.decrby(&quot;hoge&quot;, 3);
+</code></pre>
+<h5 id="redisrequest-get-https-redis-io-commands-get-">RedisRequest<code>.get</code> <a href="https://redis.io/commands/get">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.get(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-getbit-https-redis-io-commands-getbit-">RedisRequest<code>.getbit</code> <a href="https://redis.io/commands/getbit">📕</a></h5>
+<p><code>String → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.getbit(&quot;hoge&quot;, 3);
+</code></pre>
+<h5 id="redisrequest-getrange-https-redis-io-commands-getrange-">RedisRequest<code>.getrange</code> <a href="https://redis.io/commands/getrange">📕</a></h5>
+<p><code>String → [ Number, Number ] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.getrange(&quot;hoge&quot;, [ 0, 1 ]);
+</code></pre>
+<h5 id="redisrequest-getset-https-redis-io-commands-getset-">RedisRequest<code>.getset</code> <a href="https://redis.io/commands/getset">📕</a></h5>
+<p><code>String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.getset(&quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.getset(&quot;hoge&quot;, encodeText(&quot;piyo&quot;));
+</code></pre>
+<h5 id="redisrequest-incr-https-redis-io-commands-incr-">RedisRequest<code>.incr</code> <a href="https://redis.io/commands/incr">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.incr(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-incrby-https-redis-io-commands-incrby-">RedisRequest<code>.incrby</code> <a href="https://redis.io/commands/incrby">📕</a></h5>
+<p><code>String → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.incrby(&quot;hoge&quot;, 3);
+</code></pre>
+<h5 id="redisrequest-incrbyfloat-https-redis-io-commands-incrbyfloat-">RedisRequest<code>.incrbyfloat</code> <a href="https://redis.io/commands/incrbyfloat">📕</a></h5>
+<p><code>String → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.incrbyfloat(&quot;hoge&quot;, 0.1);
+</code></pre>
+<h5 id="redisrequest-mget-https-redis-io-commands-mget-">RedisRequest<code>.mget</code> <a href="https://redis.io/commands/mget">📕</a></h5>
+<p><code>(String, ...) → RedisRequest</code>, or <code>String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.mget(&quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.mget([ &quot;hoge&quot;, &quot;piyo&quot; ]);
+</code></pre>
+<h5 id="redisrequest-mset-https-redis-io-commands-mset-">RedisRequest<code>.mset</code> <a href="https://redis.io/commands/mset">📕</a></h5>
+<p><code>(String, ...) → RedisRequest</code>, or <code>(String|Symbol)[] → Uint8Array → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.mset(&quot;hoge&quot;, &quot;piyo&quot;, &quot;hogefuga&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.mset(
+  [ &quot;hoge&quot;, $$rawPlaceholder, &quot;hogefuga&quot;, $$rawPlaceholder ],
+  encodeText(&quot;piyo\r\nfuga\r\n&quot;)
+);
+</code></pre>
+<h5 id="redisrequest-msetnx-https-redis-io-commands-msetnx-">RedisRequest<code>.msetnx</code> <a href="https://redis.io/commands/msetnx">📕</a></h5>
+<p><code>(String, ...) → RedisRequest</code>, or <code>(String|Symbol)[] → Uint8Array → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.msetnx(&quot;hoge&quot;, &quot;piyo&quot;, &quot;hogefuga&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.msetnx(
+  [ &quot;hoge&quot;, $$rawPlaceholder, &quot;hogefuga&quot;, $$rawPlaceholder ],
+  encodeText(&quot;piyo\r\nfuga\r\n&quot;)
+);
+</code></pre>
+<h5 id="redisrequest-psetex-https-redis-io-commands-psetex-">RedisRequest<code>.psetex</code> <a href="https://redis.io/commands/psetex">📕</a></h5>
+<p><code>Number → String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.psetex(1000, &quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.psetex(1000, &quot;hoge&quot;, encodeText(&quot;piyo&quot;));
+</code></pre>
+<h5 id="redisrequest-set-https-redis-io-commands-set-">RedisRequest<code>.set</code> <a href="https://redis.io/commands/set">📕</a></h5>
+<p><code>Object → String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.set({}, &quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.set({}, &quot;hoge&quot;, encodeText(&quot;piyo&quot;));
+const redisRequestC = RedisRequest.set({ EX: 2000 }, &quot;hoge&quot;, encodeText(&quot;piyo&quot;));
+const redisRequestD = RedisRequest.set({ KEEPTTL: true }, &quot;hoge&quot;, encodeText(&quot;piyo&quot;));
+</code></pre>
+<h5 id="redisrequest-setbit-https-redis-io-commands-setbit-">RedisRequest<code>.setbit</code> <a href="https://redis.io/commands/setbit">📕</a></h5>
+<p><code>String → Number → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.setbit(&quot;hoge&quot;, 7, 1);
+</code></pre>
+<h5 id="redisrequest-setex-https-redis-io-commands-setex-">RedisRequest<code>.setex</code> <a href="https://redis.io/commands/setex">📕</a></h5>
+<p><code>Number → String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.setex(10, &quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.setex(10, &quot;hoge&quot;, encodeText(&quot;piyo&quot;));
+</code></pre>
+<h5 id="redisrequest-setnx-https-redis-io-commands-setnx-">RedisRequest<code>.setnx</code> <a href="https://redis.io/commands/setnx">📕</a></h5>
+<p><code>String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.setnx(&quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.setnx(&quot;hoge&quot;, encodeText(&quot;piyo&quot;));
+</code></pre>
+<h5 id="redisrequest-setrange-https-redis-io-commands-setrange-">RedisRequest<code>.setrange</code> <a href="https://redis.io/commands/setrange">📕</a></h5>
+<p><code>String → Number → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.setrange(&quot;hoge&quot;, 2, &quot;FU&quot;);
+</code></pre>
+<h5 id="redisrequest-stralgo-https-redis-io-commands-stralgo-">RedisRequest<code>.stralgo</code> <a href="https://redis.io/commands/stralgo">📕</a></h5>
+<p><code>(String, ...) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.strlen(&quot;LCS&quot;, &quot;KEYS, &quot;hoge&quot;, &quot;piyo&quot;);
+</code></pre>
+<h5 id="redisrequest-strlen-https-redis-io-commands-strlen-">RedisRequest<code>.strlen</code> <a href="https://redis.io/commands/strlen">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.strlen(&quot;hoge&quot;);
+</code></pre>
+<hr>
+<h4 id="key-commands">Key commands</h4>
+<h5 id="redisrequest-copy-https-redis-io-commands-copy-">RedisRequest<code>.copy</code> <a href="https://redis.io/commands/copy">📕</a></h5>
+<p><code>Object → String → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.copy({}, &quot;hoge&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.copy({ REPLACE: true }, &quot;hoge&quot;, &quot;fuga&quot;);
+const redisRequestC = RedisRequest.copy({ DB: 2 }, &quot;hoge&quot;, &quot;fuga&quot;);
+</code></pre>
+<h5 id="redisrequest-del-https-redis-io-commands-del-">RedisRequest<code>.del</code> <a href="https://redis.io/commands/del">📕</a></h5>
+<p><code>(String, ...) → RedisRequest</code>, or <code>String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.del(&quot;hoge&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.del([ &quot;hoge&quot;, &quot;fuga&quot; ]);
+</code></pre>
+<h5 id="redisrequest-dump-https-redis-io-commands-dump-">RedisRequest<code>.dump</code> <a href="https://redis.io/commands/dump">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.dump(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-exists-https-redis-io-commands-exists-">RedisRequest<code>.exists</code> <a href="https://redis.io/commands/exists">📕</a></h5>
+<p><code>(String, ...) → RedisRequest</code>, or <code>String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.exists(&quot;hoge&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.exists([ &quot;hoge&quot;, &quot;fuga&quot; ]);
+</code></pre>
+<h5 id="redisrequest-expire-https-redis-io-commands-expire-">RedisRequest<code>.expire</code> <a href="https://redis.io/commands/expire">📕</a></h5>
+<p><code>Number → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.expire(10, &quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-expireat-https-redis-io-commands-expireat-">RedisRequest<code>.expireat</code> <a href="https://redis.io/commands/expireat">📕</a></h5>
+<p><code>Date|Number → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.expireat(new Date(), &quot;hoge&quot;);
+const redisRequestB = RedisRequest.expireat(Date.now(), &quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-keys-https-redis-io-commands-keys-">RedisRequest<code>.keys</code> <a href="https://redis.io/commands/keys">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.keys(&quot;*ge&quot;);
+</code></pre>
+<h5 id="redisrequest-migrate-https-redis-io-commands-migrate-">RedisRequest<code>.migrate</code> <a href="https://redis.io/commands/migrate">📕</a></h5>
+<p><code>Object → String|String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.migrate({ host: &quot;127.0.0.1&quot;, port: 6379, db: 3, timeout: 5000 }, &quot;hoge&quot;);
+const redisRequestB = RedisRequest.migrate(
+  { host: &quot;127.0.0.1&quot;, port: 6379, db: 3, timeout: 5000 },
+  [ &quot;hoge&quot;, &quot;fuga&quot; ]
+);
+const redisRequestC = RedisRequest.migrate(
+  { host: &quot;127.0.0.1&quot;, port: 6379, db: 3, timeout: 5000, REPLACE: true },
+  &quot;hoge&quot;
+);
+const redisRequestD = RedisRequest.migrate(
+  { host: &quot;127.0.0.1&quot;, port: 6379, db: 3, timeout: 5000, password },
+  &quot;hoge&quot;
+);
+const redisRequestE = RedisRequest.migrate(
+  { host: &quot;127.0.0.1&quot;, port: 6379, db: 3, timeout: 5000, username, password },
+  &quot;hoge&quot;
+);
+</code></pre>
+<h5 id="redisrequest-move-https-redis-io-commands-move-">RedisRequest<code>.move</code> <a href="https://redis.io/commands/move">📕</a></h5>
+<p><code>Number → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.move(3, &quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-object-https-redis-io-commands-object-">RedisRequest<code>.object</code> <a href="https://redis.io/commands/object">📕</a></h5>
+<p><code>String → String|String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.object(&quot;ENCODING&quot;, &quot;hoge&quot;);
+const redisRequestB = RedisRequest.object(&quot;ENCODING&quot;, [ &quot;hoge&quot; ]);
+</code></pre>
+<h5 id="redisrequest-persist-https-redis-io-commands-persist-">RedisRequest<code>.persist</code> <a href="https://redis.io/commands/persist">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.persist(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-pexpireat-https-redis-io-commands-pexpireat-">RedisRequest<code>.pexpireat</code> <a href="https://redis.io/commands/pexpireat">📕</a></h5>
+<p><code>Date|Number → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.pexpireat(new Date(), &quot;hoge&quot;);
+const redisRequestB = RedisRequest.pexpireat(Date.now(), &quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-pexpire-https-redis-io-commands-pexpire-">RedisRequest<code>.pexpire</code> <a href="https://redis.io/commands/pexpire">📕</a></h5>
+<p><code>Number → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.pexpire(5000, &quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-ptll-https-redis-io-commands-ptll-">RedisRequest<code>.ptll</code> <a href="https://redis.io/commands/ptll">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.pttl(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-randomkey-https-redis-io-commands-randomkey-">RedisRequest<code>.randomkey</code> <a href="https://redis.io/commands/randomkey">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.randomkey(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-rename-https-redis-io-commands-rename-">RedisRequest<code>.rename</code> <a href="https://redis.io/commands/rename">📕</a></h5>
+<p><code>String → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.rename(&quot;hoge&quot;, &quot;hogefuga&quot;);
+</code></pre>
+<h5 id="redisrequest-renamenx-https-redis-io-commands-renamenx-">RedisRequest<code>.renamenx</code> <a href="https://redis.io/commands/renamenx">📕</a></h5>
+<p><code>String → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.renamenx(&quot;hoge&quot;, &quot;hogefuga&quot;);
+</code></pre>
+<h5 id="redisrequest-restore-https-redis-io-commands-restore-">RedisRequest<code>.restore</code> <a href="https://redis.io/commands/restore">📕</a></h5>
+<p><code>Object → String → String|Uint8Array → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.restore(
+  { ttl: 10 },
+  &quot;hoge&quot;,
+  String.raw`\u0000\xC0\n\t\u0000\xBEm\u0006\x89Z(\u0000\n`
+);
+const redisRequestB = RedisRequest.restore(
+  { ttl: 10 },
+  &quot;hoge&quot;,
+  encodeText(String.raw`\u0000\xC0\n\t\u0000\xBEm\u0006\x89Z(\u0000\n`)
+);
+const redisRequestC = RedisRequest.restore(
+  { ttl: 10, REPLACE: true },
+  &quot;hoge&quot;,
+  String.raw`\u0000\xC0\n\t\u0000\xBEm\u0006\x89Z(\u0000\n`
+);
+const redisRequestD = RedisRequest.restore(
+  { ttl: 10, IDLETIME: 1 },
+  &quot;hoge&quot;,
+  String.raw`\u0000\xC0\n\t\u0000\xBEm\u0006\x89Z(\u0000\n`
+);
+</code></pre>
+<h5 id="redisrequest-scan-https-redis-io-commands-scan-">RedisRequest<code>.scan</code> <a href="https://redis.io/commands/scan">📕</a></h5>
+<p><code>Object → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.scan({}, 0);
+const redisRequestB = RedisRequest.scan({ MATCH: &quot;*yo&quot;, COUNT: 1000 }, 0);
+</code></pre>
+<h5 id="redisrequest-sort-https-redis-io-commands-migrate-">RedisRequest<code>.sort</code> <a href="https://redis.io/commands/migrate">📕</a></h5>
+<p><code>Object → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.sort({}, &quot;hoge&quot;);
+const redisRequestB = RedisRequest.sort({ BY: &quot;fuga&quot; }, &quot;hoge&quot;);
+const redisRequestC = RedisRequest.sort({ LIMIT: 10 }, &quot;hoge&quot;);
+const redisRequestD = RedisRequest.sort({ ASC: true }, &quot;hoge&quot;);
+const redisRequestE = RedisRequest.sort({ DESC: true, ALPHA: true }, &quot;hoge&quot;);
+const redisRequestF = RedisRequest.sort({ STORE: &quot;fuga&quot; }, &quot;hoge&quot;);
+const redisRequestG = RedisRequest.sort({ GET: [ &quot;*&quot; ], ALPHA: true }, &quot;hoge&quot;);
+const redisRequestH = RedisRequest.sort({ LIMIT: 10, GET: [ &quot;*&quot;, &quot;#&quot; ], ALPHA: true }, &quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-touch-https-redis-io-commands-ptll-">RedisRequest<code>.touch</code> <a href="https://redis.io/commands/ptll">📕</a></h5>
+<p><code>String|String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.touch(&quot;hoge&quot;);
+const redisRequestB = RedisRequest.touch([ &quot;hoge&quot;, &quot;fuga&quot; ]);
+</code></pre>
+<h5 id="redisrequest-ttl-https-redis-io-commands-ttl-">RedisRequest<code>.ttl</code> <a href="https://redis.io/commands/ttl">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.ttl(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-type-https-redis-io-commands-type-">RedisRequest<code>.type</code> <a href="https://redis.io/commands/type">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.type(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-unlink-https-redis-io-commands-unlink-">RedisRequest<code>.unlink</code> <a href="https://redis.io/commands/unlink">📕</a></h5>
+<p><code>String|String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.unlink(&quot;hoge&quot;);
+const redisRequestB = RedisRequest.unlink([ &quot;hoge&quot;, &quot;fuga&quot; ]);
+</code></pre>
+<h5 id="redisrequest-wait-https-redis-io-commands-wait-">RedisRequest<code>.wait</code> <a href="https://redis.io/commands/wait">📕</a></h5>
+<p><code>Number → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.wait(1,10);
+</code></pre>
+<hr>
+<h4 id="hash-commands">Hash commands</h4>
+<h5 id="redisrequest-hdel-https-redis-io-commands-hdel-">RedisRequest<code>.hdel</code> <a href="https://redis.io/commands/hdel">📕</a></h5>
+<p><code>String → String|String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.hdel(&quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.hdel(&quot;hoge&quot;, [ &quot;piyo&quot;, &quot;fuga&quot; ]);
+</code></pre>
+<h5 id="redisrequest-hexists-https-redis-io-commands-hexists-">RedisRequest<code>.hexists</code> <a href="https://redis.io/commands/hexists">📕</a></h5>
+<p><code>String → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hexists(&quot;hoge&quot;, &quot;piyo&quot;);
+</code></pre>
+<h5 id="redisrequest-hget-https-redis-io-commands-hget-">RedisRequest<code>.hget</code> <a href="https://redis.io/commands/hget">📕</a></h5>
+<p><code>String → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hget(&quot;hoge&quot;, &quot;piyo&quot;);
+</code></pre>
+<h5 id="redisrequest-hgetall-https-redis-io-commands-hgetall-">RedisRequest<code>.hgetall</code> <a href="https://redis.io/commands/hgetall">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hgetall(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-hincrby-https-redis-io-commands-hincrby-">RedisRequest<code>.hincrby</code> <a href="https://redis.io/commands/hincrby">📕</a></h5>
+<p><code>String → Number → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hincrby(&quot;hoge&quot;, 3, &quot;piyo&quot;);
+</code></pre>
+<h5 id="redisrequest-hincrbyfloat-https-redis-io-commands-hincrbyfloat-">RedisRequest<code>.hincrbyfloat</code> <a href="https://redis.io/commands/hincrbyfloat">📕</a></h5>
+<p><code>String → Number → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.hincrbyfloat(&quot;hoge&quot;, 0.1, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.hincrbyfloat(&quot;hoge&quot;, -5, &quot;piyo&quot;);
+const redisRequestC = RedisRequest.hincrbyfloat(&quot;hoge&quot;, 5.0e3, &quot;piyo&quot;);
+</code></pre>
+<h5 id="redisrequest-hkeys-https-redis-io-commands-hkeys-">RedisRequest<code>.hkeys</code> <a href="https://redis.io/commands/hkeys">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hkeys(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-hlen-https-redis-io-commands-hlen-">RedisRequest<code>.hlen</code> <a href="https://redis.io/commands/hlen">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hlen(&quot;hoge&quot;);
+</code></pre>
+<h5 id="redisrequest-hmget-https-redis-io-commands-hmget-">RedisRequest<code>.hmget</code> <a href="https://redis.io/commands/hmget">📕</a></h5>
+<p><code>String → String|String[] → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.hmget(&quot;hoge&quot;, &quot;piyo&quot;);
+const redisRequestB = RedisRequest.hmget(&quot;hoge&quot;, [ &quot;piyo&quot;, &quot;fuga&quot; ]);
+</code></pre>
+<h5 id="redisrequest-hmset-https-redis-io-commands-hmset-">RedisRequest<code>.hmset</code> <a href="https://redis.io/commands/hmset">📕</a></h5>
+<p><code>String → String → String|Uint8Array → RedisRequest</code> or, <code>String → String[] → Uint8Array → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.hmset(&quot;hoge&quot;, &quot;piyo&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.hmset(&quot;hoge&quot;, &quot;piyo&quot;, encodeText(&quot;fuga&quot;));
+const redisRequestC = RedisRequest.hmset(
+  &quot;hoge&quot;,
+  [ &quot;piyo&quot;, $$rawPlaceholder, &quot;fuga&quot;, $$rawPlaceholder ],
+  encodeText(&quot;hogepiyo\r\nhogefuga\r\n&quot;)
+);
+</code></pre>
+<h5 id="redisrequest-hscan-https-redis-io-commands-hscan-">RedisRequest<code>.hscan</code> <a href="https://redis.io/commands/hscan">📕</a></h5>
+<p><code>Object → String → Number → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.hscan({}, &quot;hoge&quot;, 0);
+const redisRequestB = RedisRequest.hscan({ MATCH: &quot;*yo&quot;, COUNT: 1000 }, &quot;hoge&quot;, 0);
+</code></pre>
+<h5 id="redisrequest-hset-https-redis-io-commands-hset-">RedisRequest<code>.hset</code> <a href="https://redis.io/commands/hset">📕</a></h5>
+<p><code>String → String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.hset(&quot;hoge&quot;, &quot;piyo&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.hset(&quot;hoge&quot;, &quot;piyo&quot;, encodeText(&quot;fuga&quot;));
+</code></pre>
+<h5 id="redisrequest-hsetnx-https-redis-io-commands-hsetnx-">RedisRequest<code>.hsetnx</code> <a href="https://redis.io/commands/hsetnx">📕</a></h5>
+<p><code>String → String → (String|Uint8Array) → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequestA = RedisRequest.hsetnx(&quot;hoge&quot;, &quot;piyo&quot;, &quot;fuga&quot;);
+const redisRequestB = RedisRequest.hsetnx(&quot;hoge&quot;, &quot;piyo&quot;, encodeText(&quot;fuga&quot;));
+</code></pre>
+<h5 id="redisrequest-hstrlen-https-redis-io-commands-hstrlen-">RedisRequest<code>.hstrlen</code> <a href="https://redis.io/commands/hstrlen">📕</a></h5>
+<p><code>String → String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hstrlen(&quot;hoge&quot;, &quot;piyo&quot;);
+</code></pre>
+<h5 id="redisrequest-hvals-https-redis-io-commands-hvals-">RedisRequest<code>.hvals</code> <a href="https://redis.io/commands/hvals">📕</a></h5>
+<p><code>String → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.hvals(&quot;hoge&quot;);
+</code></pre>
+<hr>
+<h4 id="server-commands">Server commands</h4>
+<h5 id="redisrequest-flushall-https-redis-io-commands-flushall-">RedisRequest<code>.flushall</code> <a href="https://redis.io/commands/flushall">📕</a></h5>
+<p><code>() → RedisRequest</code></p>
+
+<pre><code class="lang-js">const redisRequest = RedisRequest.flushall();
+</code></pre>

@@ -1,0 +1,58 @@
+<h2 id="usage">Usage</h2>
+<p>This example uses the <a href="https://ramdajs.com">Ramda library</a> - for simplification - but you should be able to use any library that implements
+the <a href="https://github.com/fantasyland/fantasy-land">Fantasy-land specifications</a>.</p>
+
+<pre><code class="lang-js">import { compose, converge, curry, map, prop } from &quot;https://deno.land/x/ramda@v0.27.2/mod.ts&quot;;
+import Either from &quot;https://deno.land/x/functional@v1.3.4/library/Either.js&quot;;
+import Task from &quot;https://deno.land/x/functional@v1.3.4/library/Task.js&quot;;
+
+const fetchUser = userID =&gt; Task.wrap(_ =&gt; fetch(`${URL}/users/${userID}`).then(response =&gt; response.json()));
+
+const sayHello = compose(
+  map(
+    converge(
+      curry((username, email) =&gt; `Hello ${username} (${email})!`),
+      [
+        prop(&quot;username&quot;),
+        prop(&quot;email&quot;)
+      ]
+    )
+  ),
+  fetchUser
+);
+
+// Calling `sayHello` results in an instance of `Task` keeping the function pure.
+assert(Task.is(sayHello(userID)));
+
+// Finally, calling `Task#run` will call `fetch` and return a promise
+sayHello(userID).run()
+  .then(container =&gt; {
+    // The returned value should be an instance of `Either.Right` or `Either.Left`
+    assert(Either.Right.is(container));
+    // Forcing to coerce the container to string will show that the final value is our message.
+    assert(container.toString(), `Either.Right(&quot;Hello johndoe (johndoe@gmail.com)!&quot;)`);
+  });
+
+// await sayHello(userID).run() === Either.Right(String)
+</code></pre>
+<h3 id="using-the-bundle">Using the bundle</h3>
+<p>As a convenience, when using Functional in the browser, you can use the <strong>unminified</strong> bundled copy (18KB gzipped).</p>
+
+<pre><code class="lang-js">import { compose, converge, lift, map, prop } from &quot;https://deno.land/x/ramda@v0.27.2/mod.ts&quot;;
+import { Either, Task } from &quot;https://deno.land/x/functional@v1.3.4/functional.js&quot;;
+
+const fetchUser = userID =&gt; Task.wrap(_ =&gt; fetch(`${URL}/users/${userID}`).then(response =&gt; response.json()));
+
+const sayHello = compose(
+  map(
+    converge(
+      curry((username, email) =&gt; `Hello ${username} (${email})!`),
+      [
+        prop(&quot;username&quot;),
+        prop(&quot;email&quot;)
+      ]
+    )
+  ),
+  fetchUser
+);
+</code></pre>
