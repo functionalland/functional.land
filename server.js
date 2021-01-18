@@ -45,7 +45,12 @@ startHTTPServer(
   pipe(
     path([ "headers", "url" ]),
     path => path.replace(/\?.*/, "").replace(/(?<=\.[jts]{2})\:[0-9]+\:[0-9]+/, ""),
-    path => File.fromPath(`${Deno.cwd()}/${path === "/" ? "index.html" : path}`),
+    path => File.fromPath(
+      `${Deno.cwd()}/${
+        path === "/" || !path.includes("/assets") && !path.includes("/fragments") 
+          ? "index.html" 
+          : path
+      }`),
     readFile,
     map(
       converge(

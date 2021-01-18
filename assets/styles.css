@@ -142,6 +142,10 @@ thead th, tbody td {
   padding: 1rem;
 }
 
+#top-bar {
+  display: flex;
+}
+
 #top-bar-container {
   align-items: center;
   display: flex;
@@ -296,9 +300,9 @@ h5:hover .heading-anchor {
   stroke: var(--color-gray-2);
 }
 
-h1 a + code, h2 a + code, h3 a + code, h4 a + code, h5 a + code, p code:first-child {
-  margin-left: -0.3rem;
-}
+/*h1 a + code, h2 a + code, h3 a + code, h4 a + code, h5 a + code, p code:first-child {*/
+/*  margin-left: -0.3rem;*/
+/*}*/
 
 p {
   color: var(--color-article-text);
@@ -307,8 +311,9 @@ p {
   margin-block-start: 1.125rem;
 }
 
-h1 code, h2 code, h3 code, h4 code, p code {
-  margin: 0 0.3rem;
+h1 code, h2 code, h3 code, h4 code, h5 code, p code {
+  background-color: transparent;
+  /*margin: 0 0.3rem;*/
 }
 
 code {
@@ -380,33 +385,12 @@ input[type="email"],
   stroke: var(--color-default-text);
 }
 
-#loading {
-  animation: spin 4s infinite linear;
-  display: flex;
-  justify-content: center;
-  margin: 5.125rem 0;
-  width: 100%;
-}
-
 #loading svg {
   stroke: var(--color-article-text);
 }
 
 #loading.--hide {
   display: none;
-}
-
-#loading svg {
-
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 @supports(-webkit-appearance: none) or (-moz-appearance: none) {

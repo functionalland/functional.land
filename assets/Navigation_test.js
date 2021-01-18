@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts"
+import { assert, assertEquals } from "https://deno.land/std@0.83.0/testing/asserts.ts"
 
 import { curryN, equals, find } from "https://deno.land/x/ramda@v0.27.2/mod.ts";
 

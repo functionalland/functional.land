@@ -2,6 +2,7 @@ import always from "https://deno.land/x/ramda@v0.27.2/source/always.js";
 import complement from "https://deno.land/x/ramda@v0.27.2/source/complement.js";
 import converge from "https://deno.land/x/ramda@v0.27.2/source/converge.js";
 import curry from "https://deno.land/x/ramda@v0.27.2/source/curry.js";
+import either from "https://deno.land/x/ramda@v0.27.2/source/either.js";
 import equals from "https://deno.land/x/ramda@v0.27.2/source/equals.js";
 import filter from "https://deno.land/x/ramda@v0.27.2/source/filter.js";
 import flip from "https://deno.land/x/ramda@v0.27.2/source/flip.js";
@@ -10,7 +11,6 @@ import juxt from "https://deno.land/x/ramda@v0.27.2/source/juxt.js";
 import map from "https://deno.land/x/ramda@v0.27.2/source/map.js";
 import pipe from "https://deno.land/x/ramda@v0.27.2/source/pipe.js";
 import prop from "https://deno.land/x/ramda@v0.27.2/source/prop.js";
-import tap from "https://deno.land/x/ramda@v0.27.2/source/tap.js";
 import test from "https://deno.land/x/ramda@v0.27.2/source/test.js";
 import thunkify from "https://deno.land/x/ramda@v0.27.2/source/thunkify.js";
 import useWith from "https://deno.land/x/ramda@v0.27.2/source/useWith.js";
@@ -40,7 +40,7 @@ import {
 import { $$debug, debug } from "http://x.ld:8069/functional-flux/library/utilities.js";
 
 import { renderNavigation } from "./Navigation.js";
-import { deserializeActivePage, parseHash, stringifyHash, composeFilePath, serializeActivePage } from "./utilities.js";
+import { parsePathname, stringifyHash, composeFilePath } from "./utilities.js";
 
 window[$$debug] = /\:[0-9]+$/.test(window.location.origin);
 
@@ -51,30 +51,17 @@ window.NodeList.prototype["fantasy-land/map"] = Array.prototype.map;
 
 const getTemplateAnchor = _ => querySelector("#template-vector-link", document);
 
-const handleHashChange = _ =>
-  addEventListenerRX(
-    "hashchange",
-    curry(
-      ($$element, state) =>
-        document.querySelector("fl-navigation")
-          .setAttribute(
-            "data-active-section",
-            window.location.hash.replace(/^#/, "").split("-")[0]
-          ) ||
-        Task.of(
-          state.activePage !== parseHash(window.location.hash)[0]
-            ? { activePage: parseHash(window.location.hash)[0] }
-            : {}
-        )
-    ),
-    window
-  );
-
 const handleThemeToggleClick = pipe(
   querySelector("#theme-toggle"),
   addEventListenerRX(
     "click",
-    curry(($$element, state) => Task.of({ themeMode: state.themeMode === "dark" ? "light" : "dark" })),
+    curry(
+      ($$element, state) => {
+        localStorage.setItem("fl-theme-mode", state.themeMode === "dark" ? "light" : "dark");
+
+        return Task.of({ themeMode: state.themeMode === "dark" ? "light" : "dark" })
+      }
+    ),
   )
 );
 
@@ -96,21 +83,7 @@ const prependHeadings = converge(
                 pipe(prop("id"), id => `#${id}`)
               ]
             ),
-            flip(insertAdjacentElement("afterbegin")),
-            addEventListenerRX(
-              "click",
-              curry(
-                ($$element, _) => {
-                  window.history.pushState(
-                    {},
-                    "",
-                    `${window.location.hash.replace(/\?.+$/, "")}?anchor=${$$element.getAttribute("href").replace("#", "")}`
-                  );
-                  $$element.scrollIntoView(true);
-                  return Task.of({});
-                }
-              )
-            )
+            flip(insertAdjacentElement("afterbegin"))
           ]
         ),
         [
@@ -155,7 +128,10 @@ const overwriteExternalLinks = pipe(
 )
 
 const assertRenderActivePage = ($$element, state) =>
-  state.activePage !== $$element.firstElementChild.getAttribute("data-active-page");
+  (
+    state.activeSection === $$element.querySelector("fl-navigation").getAttribute("data-active-section")
+  )
+  || state.activePage !== $$element.firstElementChild.getAttribute("data-active-page")
 
 const assertRenderToggleTheme = useWith(
   complement(equals),
@@ -168,23 +144,33 @@ const assertRenderToggleTheme = useWith(
 const renderActivePage = pipe(
   useWith(
     curry(
-      ([ [ _setInnerHTML ], [ _hideLoader ], _setActivePage ], [ task, activePage, activeSection, anchor ]) => map(
-        pipe(
-          map(pipe(decodeRaw, _setInnerHTML, juxt([ parseCodeBlocks, prependHeadings, overwriteExternalLinks ]))),
-          _hideLoader,
-          tap(_ => {
-            window.history.pushState({}, "", stringifyHash(activeSection, activePage));
-            _setActivePage(activePage);
-            anchor && document.querySelector(`#${anchor}`)?.scrollIntoView(true);
-          }),
-          always({})
-        ),
-        task
-      )
+      ([ $$navigation, [ _setInnerHTML ], [ _hideLoader ], _setActivePage ], [ task, activePage, activeSection ]) =>
+        map(
+          pipe(
+            map(pipe(decodeRaw, _setInnerHTML, juxt([ parseCodeBlocks, prependHeadings, overwriteExternalLinks ]))),
+            _hideLoader,
+            _ => {
+              $$navigation.setAttribute("data-active-section", activeSection);
+              _setActivePage(activePage);
+
+              const [ pathActiveSection, pathActivePage ] = parsePathname(window.location.pathname);
+
+              if (pathActiveSection !== activeSection || pathActivePage !== activePage) {
+                window.history.pushState({}, "", stringifyHash(activeSection, activePage));
+              }
+
+              if (window.location.hash !== "") document.querySelector(window.location.hash).scrollIntoView(true);
+
+              return {};
+            }
+          ),
+          task
+        )
     ),
     [
       juxt(
         [
+          querySelector("fl-navigation"),
           pipe(
             querySelector("main article"),
             juxt(
@@ -213,8 +199,7 @@ const renderActivePage = pipe(
         [
           pipe(converge(composeFilePath, [ prop("activeSection"), prop("activePage") ]), Request.get, fetch),
           prop("activePage"),
-          prop("activeSection"),
-          prop("anchor")
+          prop("activeSection")
         ]
       )
     ]
@@ -237,14 +222,13 @@ const initializeApplication = juxt(
     renderApplication(
       {
         activePage: _ =>
-          window.location.hash !== "" ? parseHash(window.location.hash)[1] : "either",
-        activeSection: _ => window.location.hash !== "" ? parseHash(window.location.hash)[0] : "core",
-        anchor: _ =>
-          /\?.*\banchor\b/.test(window.location.hash)
-            ? window.location.hash.match(/(?<=\?.*\banchor\b=).+(?:\&|$)/)[0]
-            : null,
+          window.location.pathname !== "/" ? parsePathname(window.location.pathname)[1] : "usage",
+        activeSection: _ => window.location.pathname !== "/" ? parsePathname(window.location.pathname)[0] : "core",
         loading: always(false),
-        themeMode: pipe(prop("firstElementChild"), getAttribute("data-theme-mode"))
+        themeMode: either(
+          _ => localStorage.getItem("fl-theme-mode"),
+          pipe(prop("firstElementChild"), getAttribute("data-theme-mode"))
+        )
       },
       processEvents(
         renderNavigation,
@@ -252,8 +236,7 @@ const initializeApplication = juxt(
         [ assertRenderActivePage, renderActivePage ]
       )
     ),
-    handleThemeToggleClick,
-    handleHashChange
+    handleThemeToggleClick
   ]
 );
 

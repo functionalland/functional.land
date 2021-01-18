@@ -2180,22 +2180,12 @@ const setAttribute = curry((name, value, $$element)=>$$element.setAttribute(name
 );
 const getTemplateAnchor = (_)=>querySelector("#template-vector-link", document)
 ;
-const composeFilePath = curry((activeSection, activePage)=>`/fragments/${activeSection}-${activePage}.html`
-);
-const parseHash = (hash)=>hash.replace(/^#\/*|\?.+$/g, "").split("/")
-;
-const stringifyHash = curry((activeSection, activePage)=>`#/${activeSection}/${activePage}`
-);
-const handleHashChange = (_)=>addEventListener1("hashchange", curry(($$element, state)=>document.querySelector("fl-navigation").setAttribute("data-active-section", window.location.hash.replace(/^#/, "").split("-")[0]) || Task1.of(state.activePage !== parseHash(window.location.hash)[0] ? {
-            activePage: parseHash(window.location.hash)[0]
-        } : {
-        })
-    ), window)
-;
-const handleThemeToggleClick = pipe(querySelector("#theme-toggle"), addEventListener1("click", curry(($$element, state)=>Task1.of({
+const handleThemeToggleClick = pipe(querySelector("#theme-toggle"), addEventListener1("click", curry(($$element, state)=>{
+    localStorage.setItem("fl-theme-mode", state.themeMode === "dark" ? "light" : "dark");
+    return Task1.of({
         themeMode: state.themeMode === "dark" ? "light" : "dark"
-    })
-)));
+    });
+})));
 const parseCodeBlocks = pipe(querySelectorAll("pre code"), map(window.hljs.highlightBlock));
 var juxt = _curry1(function juxt(fns) {
     return converge(function() {
@@ -2217,14 +2207,7 @@ const prependHeadings = converge(map, [
             pipe(prop("id"), (id)=>`#${id}`
             )
         ]),
-        flip(insertAdjacentElement("afterbegin")),
-        addEventListener1("click", curry(($$element, _)=>{
-            window.history.pushState({
-            }, "", `${window.location.hash.replace(/\?.+$/, "")}?anchor=${$$element.getAttribute("href").replace("#", "")}`);
-            $$element.scrollIntoView(true);
-            return Task1.of({
-            });
-        }))
+        flip(insertAdjacentElement("afterbegin"))
     ]), [
         pipe(cloneNode, querySelector("a")),
         identity
@@ -2258,17 +2241,18 @@ const overwriteExternalLinks = pipe(querySelectorAll("a"), filter(pipe(getAttrib
         activeSection: ref[activeSection]
     });
 }))));
-const assertRenderActivePage = ($$element, state)=>state.activePage !== $$element.firstElementChild.getAttribute("data-active-page")
+const assertRenderActivePage = ($$element, state)=>state.activeSection === $$element.querySelector("fl-navigation").getAttribute("data-active-section") || state.activePage !== $$element.firstElementChild.getAttribute("data-active-page")
 ;
 const assertRenderToggleTheme = useWith(complement(equals), [
     pipe(prop("firstElementChild"), getAttribute("data-theme-mode")),
     prop("themeMode")
 ]);
-var always = _curry1(function always(val) {
-    return function() {
-        return val;
-    };
-});
+const composeFilePath = curry((activeSection, activePage)=>`/fragments/${activeSection}-${activePage}.html`
+);
+const parsePathname = (pathname)=>pathname.replace(/^\/*|\?.+$/g, "").split("/")
+;
+const stringifyHash = curry((activeSection, activePage)=>`/${activeSection}/${activePage}`
+);
 var thunkify = _curry1(function thunkify(fn) {
     return curryN(fn.length, function createThunk() {
         var fnArgs = arguments;
@@ -2516,19 +2500,25 @@ const pureFetch = (request)=>Request1.isOrThrow(request) && Task.wrap((_)=>fetch
         ])
     )
 ;
-const renderActivePage = pipe(useWith(curry(([[_setInnerHTML], [_hideLoader], _setActivePage], [task, activePage, activeSection, anchor])=>map(pipe(map(pipe(decodeRaw1, _setInnerHTML, juxt([
+const renderActivePage = pipe(useWith(curry(([$$navigation, [_setInnerHTML], [_hideLoader], _setActivePage], [task, activePage, activeSection])=>map(pipe(map(pipe(decodeRaw1, _setInnerHTML, juxt([
         parseCodeBlocks,
         prependHeadings,
         overwriteExternalLinks
-    ]))), _hideLoader, tap((_)=>{
-        window.history.pushState({
-        }, "", stringifyHash(activeSection, activePage));
+    ]))), _hideLoader, (_)=>{
+        $$navigation.setAttribute("data-active-section", activeSection);
         _setActivePage(activePage);
-        anchor && document.querySelector(`#${anchor}`)?.scrollIntoView(true);
-    }), always({
-    })), task)
+        const [pathActiveSection, pathActivePage] = parsePathname(window.location.pathname);
+        if (pathActiveSection !== activeSection || pathActivePage !== activePage) {
+            window.history.pushState({
+            }, "", stringifyHash(activeSection, activePage));
+        }
+        if (window.location.hash !== "") document.querySelector(window.location.hash).scrollIntoView(true);
+        return {
+        };
+    }), task)
 ), [
     juxt([
+        querySelector("fl-navigation"),
         pipe(querySelector("main article"), juxt([
             ($$element)=>(html)=>($$element.innerHTML = html) && $$element
             ,
@@ -2546,15 +2536,27 @@ const renderActivePage = pipe(useWith(curry(([[_setInnerHTML], [_hideLoader], _s
             prop("activePage")
         ]), Request1.get, pureFetch),
         prop("activePage"),
-        prop("activeSection"),
-        prop("anchor")
+        prop("activeSection")
     ])
 ]));
+var always = _curry1(function always(val) {
+    return function() {
+        return val;
+    };
+});
 const renderToggleTheme = pipe(useWith(flip(setAttribute("data-theme-mode")), [
     prop("firstElementChild"),
     prop("themeMode")
 ]), always(Task1.of({
 })));
+var or = _curry2(function or(a, b) {
+    return a || b;
+});
+var either = _curry2(function either(f, g) {
+    return _isFunction(f) ? function _either() {
+        return f.apply(this, arguments) || g.apply(this, arguments);
+    } : lift(or)(f, g);
+});
 var mergeDeepLeft = _curry2(function mergeDeepLeft(lObj, rObj) {
     return mergeDeepWithKey(function(k, lVal, rVal) {
         return lVal;
@@ -2684,7 +2686,7 @@ const bindNavigationSection = ($$parentElement)=>($$sectionElement)=>addEventLis
         ), $$sectionElement)
 ;
 const bindNavigationPage = (_)=>($$linkElement)=>addEventListener1("click", curryN(2, ($$element)=>{
-            const [activeSection, activePage] = parseHash($$element.querySelector("a").getAttribute("href"));
+            const [activeSection, activePage] = parsePathname($$element.querySelector("a").getAttribute("href"));
             return Task1.of({
                 activeSection,
                 activePage
@@ -2714,7 +2716,7 @@ const handleConnected = useWith(([, , activeSection], state)=>Task1.of(activeSec
             pipe(prop("shadowRoot"), querySelectorAll(":host > ul > ul > ul > li"), flip(map)),
             bindNavigationPage
         ]),
-        pipe(ap(flip(setAttribute("data-active-section")), pipe(prop("shadowRoot"), ($e)=>querySelector(`a[href="${window.location.hash}"]`, $e)
+        pipe(ap(flip(setAttribute("data-active-section")), pipe(prop("shadowRoot"), ($e)=>querySelector(`a[href="${window.location.pathname}"]`, $e)
         , closest("ul"), prop("previousElementSibling"), getAttribute("data-section-name"))), getAttribute("data-active-section"))
     ])),
     identity
@@ -2722,11 +2724,11 @@ const handleConnected = useWith(([, , activeSection], state)=>Task1.of(activeSec
 const handleRender = curry(($$element, state)=>{
     const $$navigationSectionList = $$element.shadowRoot.querySelectorAll(":host > ul > ul > li");
     if ($$navigationSectionList.length > 0) {
-        $$navigationSectionList.forEach(($e)=>$e.classList.remove("--active")
-        );
-        const $$activeSectionElement = Array.prototype.find.call($$navigationSectionList, ($e)=>$e.getAttribute("data-section-name") === state.activeSection
-        );
-        $$activeSectionElement && $$activeSectionElement.classList.add("--active");
+        Array.prototype.forEach.call($$navigationSectionList, ($$element1)=>{
+            if ($$element1.getAttribute("data-section-name") === state.activeSection) {
+                $$element1.classList.add("--active");
+            } else $$element1.classList.remove("--active");
+        });
     }
     return Task1.of({
     });
@@ -2744,17 +2746,16 @@ const renderNavigation = defineComponent([
     ],
     handleAttributeChange,
     handleConnected
-], handleRender, factorizeShadowFromExternalAsset("./navigation.html"));
+], handleRender, factorizeShadowFromExternalAsset("/assets/navigation.html"));
 const initializeApplication = juxt([
     renderApplication({
-        activePage: (_)=>window.location.hash !== "" ? parseHash(window.location.hash)[1] : "either"
+        activePage: (_)=>window.location.pathname !== "/" ? parsePathname(window.location.pathname)[1] : "usage"
         ,
-        activeSection: (_)=>window.location.hash !== "" ? parseHash(window.location.hash)[0] : "core"
-        ,
-        anchor: (_)=>/\?.*\banchor\b/.test(window.location.hash) ? window.location.hash.match(/(?<=\?.*\banchor\b=).+(?:\&|$)/)[0] : null
+        activeSection: (_)=>window.location.pathname !== "/" ? parsePathname(window.location.pathname)[0] : "core"
         ,
         loading: always(false),
-        themeMode: pipe(prop("firstElementChild"), getAttribute("data-theme-mode"))
+        themeMode: either((_)=>localStorage.getItem("fl-theme-mode")
+        , pipe(prop("firstElementChild"), getAttribute("data-theme-mode")))
     }, processEvents(renderNavigation, [
         assertRenderToggleTheme,
         renderToggleTheme
@@ -2762,8 +2763,7 @@ const initializeApplication = juxt([
         assertRenderActivePage,
         renderActivePage
     ])),
-    handleThemeToggleClick,
-    handleHashChange
+    handleThemeToggleClick
 ]);
 window.readState = ($$element = document)=>$$element.dispatchEvent(new CustomEvent("$$fl-render", {
         detail: (state)=>console.dir(state) || Task1.of({

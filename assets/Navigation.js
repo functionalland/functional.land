@@ -1,44 +1,26 @@
-import __ from "https://deno.land/x/ramda@v0.27.2/source/__.js";
-import always from "https://deno.land/x/ramda@v0.27.2/source/always.js";
 import ap from "https://deno.land/x/ramda@v0.27.2/source/ap.js";
-import apply from "https://deno.land/x/ramda@v0.27.2/source/apply.js"
 import applySpec from "https://deno.land/x/ramda@v0.27.2/source/applySpec.js"
-import applyTo from "https://deno.land/x/ramda@v0.27.2/source/applyTo.js"
 import call from "https://deno.land/x/ramda@v0.27.2/source/call.js";
-import chain from "https://deno.land/x/ramda@v0.27.2/source/chain.js";
-import complement from "https://deno.land/x/ramda@v0.27.2/source/complement.js";
 import converge from "https://deno.land/x/ramda@v0.27.2/source/converge.js";
 import curry from "https://deno.land/x/ramda@v0.27.2/source/curry.js";
 import curryN from "https://deno.land/x/ramda@v0.27.2/source/curryN.js";
-import equals from "https://deno.land/x/ramda@v0.27.2/source/equals.js";
 import flip from "https://deno.land/x/ramda@v0.27.2/source/flip.js";
 import identity from "https://deno.land/x/ramda@v0.27.2/source/identity.js";
-import isNil from "https://deno.land/x/ramda@v0.27.2/source/isNil.js";
 import juxt from "https://deno.land/x/ramda@v0.27.2/source/juxt.js";
 import map from "https://deno.land/x/ramda@v0.27.2/source/map.js";
-import mergeDeepRight from "https://deno.land/x/ramda@v0.27.2/source/mergeDeepRight.js";
-import nthArg from "https://deno.land/x/ramda@v0.27.2/source/nthArg.js";
 import pick from "https://deno.land/x/ramda@v0.27.2/source/pick.js";
 import pipe from "https://deno.land/x/ramda@v0.27.2/source/pipe.js";
 import prop from "https://deno.land/x/ramda@v0.27.2/source/prop.js";
-import reduce from "https://deno.land/x/ramda@v0.27.2/source/reduce.js";
-import tap from "https://deno.land/x/ramda@v0.27.2/source/tap.js";
 import useWith from "https://deno.land/x/ramda@v0.27.2/source/useWith.js";
-import when from "https://deno.land/x/ramda@v0.27.2/source/when.js";
 
 import Task, { factorizeTask } from "http://x.ld:8069/functional/library/Task.js";
-import { evert, log } from "http://x.ld:8069/functional/library/utilities.js";
+import { log } from "http://x.ld:8069/functional/library/utilities.js";
 
 import {
-  addClass,
-  cloneNode,
   closest,
   getAttribute,
-  insertAdjacentElement,
   querySelector,
   querySelectorAll,
-  removeClass,
-  replaceElement,
   setAttribute
 } from "http://x.ld:8069/functional-dom/library/element.js";
 
@@ -48,7 +30,7 @@ import {
 } from "http://x.ld:8069/functional-flux/library/component.js";
 import { addEventListener as addEventListenerRX } from "http://x.ld:8069/functional-flux/library/state.js";
 
-import { parseHash, serializeActivePage } from "./utilities.js";
+import { parsePathname, serializeActivePage } from "./utilities.js";
 
 export const bindNavigationSection = $$parentElement =>
   $$sectionElement => addEventListenerRX(
@@ -67,7 +49,7 @@ export const bindNavigationPage = _ =>
     curryN(
       2,
       $$element => {
-        const [ activeSection, activePage ] = parseHash($$element.querySelector("a").getAttribute("href"));
+        const [ activeSection, activePage ] = parsePathname($$element.querySelector("a").getAttribute("href"));
 
         return Task.of({ activeSection, activePage })
       }
@@ -108,10 +90,7 @@ export const handleConnected = useWith(
               flip(setAttribute("data-active-section")),
               pipe(
                 prop("shadowRoot"),
-                $e => querySelector(
-                  `a[href="${window.location.hash}"]`,
-                  $e
-                ),
+                $e => querySelector(`a[href="${window.location.pathname}"]`, $e),
                 closest("ul"),
                 prop("previousElementSibling"),
                 getAttribute("data-section-name")
@@ -131,14 +110,24 @@ export const handleRender = curry(
     const $$navigationSectionList = $$element.shadowRoot.querySelectorAll(":host > ul > ul > li");
 
     if ($$navigationSectionList.length > 0) {
-      $$navigationSectionList.forEach($e => $e.classList.remove("--active"));
-
-      const $$activeSectionElement = Array.prototype.find.call(
+      Array.prototype.forEach.call(
         $$navigationSectionList,
-        $e => $e.getAttribute("data-section-name") === state.activeSection
+        $$element => {
+          if ($$element.getAttribute("data-section-name") === state.activeSection) {
+           /* $$element.classList.contains("--active")
+              ? $$element.classList.remove("--active")
+              : */$$element.classList.add("--active");
+          } else $$element.classList.remove("--active");
+        }
       );
 
-      $$activeSectionElement && $$activeSectionElement.classList.add("--active");
+      // $$navigationSectionList.forEach($e => $e.classList.remove("--active"));
+      //
+      // console.log($$activeSectionElement, $$activeSectionElement.classList.contains("--active"))
+      //
+      // $$activeSectionElement && $$activeSectionElement.classList.contains("--active")
+      //   ? $$activeSectionElement.classList.remove("--active")
+      //   : $$activeSectionElement.classList.add("--active");
     }
 
     return Task.of({});
@@ -155,7 +144,7 @@ export const renderNavigation = defineComponent(
     handleConnected
   ],
   handleRender,
-  factorizeShadowFromExternalAsset("./navigation.html")
+  factorizeShadowFromExternalAsset("/assets/navigation.html")
 );
 
 export default renderNavigation;

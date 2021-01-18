@@ -1,0 +1,91 @@
+<h2 id="usage">Usage</h2>
+<p>Functional HTTP Server is optimized to write elegant and powerful point-free functions. This example uses the Ramda 
+library - for simplification - but you should be able to use any library that implements the Fantasy-land 
+specifications.</p>
+<p>This example showcases how to create an endpoint handler for POST /hoge that writes the content of the request&#39;s 
+body to a local file and to Redis simultaneously and, replies with 201.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.2/library/Task.js&quot;;
+import {
+  decodeRaw,
+  encodeText,
+  evert,
+  safeExtract
+} from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import File from &quot;https://deno.land/x/functional_io@v1.1.0/library/File.js&quot;;
+import Request from &quot;https://deno.land/x/functional_io@v1.1.0/library/Request.js&quot;;
+import Response from &quot;https://deno.land/x/functional_io@v1.1.0/library/Response.js&quot;;
+import { fetch } from &quot;https://deno.land/x/functional_io@v1.1.0/library/browser_safe.js&quot;;
+import { writeFile } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisRequest.js&quot;;
+import { $$rawPlaceholder } from &quot;https://deno.land/x/functional_redis@v0.3.0/library/Symbol.js&quot;;
+import { executeRedisCommandWithSession } from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+
+import { handlers, route } from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/route.js&quot;;
+import startHTTPServer from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/server.js&quot;;
+
+startHTTPServer(
+  { port: 8080 },
+  route(
+    handlers.post(
+      &quot;/hoge&quot;,
+      compose(
+        map(_ =&gt; Response.Created({ &#39;content-type&#39;: &quot;text/plain&quot; }, encodeText(&quot;Created!&quot;))),
+        converge(
+          (...tasks) =&gt; evert(Task, tasks),
+          [
+            compose(
+              executeRedisCommandWithSession({ port: 6379 }),
+              concat(RedisRequest(&quot;SET&quot;, new Uint8Array([]), [ &quot;hoge&quot;, $$rawPlaceholder ]))
+            ),
+            compose(
+              writeFile({}),
+              concat(File.fromPath(`${Deno.cwd()}/hoge`))
+            )
+          ]
+        )
+      )
+    )
+  )
+);
+
+const container = await fetch(
+  Request(
+    {
+      headers: {
+        &#39;accept&#39;: &#39;text/plain&#39;,
+        &#39;content-type&#39;: &#39;text/plain&#39;
+      },
+      method: &#39;POST&#39;,
+      url: &#39;http://localhost:8080/hoge&#39;
+    },
+    encodeText(&quot;Hello, Hoge!&quot;)
+  )
+).run()
+
+const response = safeExtract(&quot;Failed to unpack the response&quot;, container);
+
+assert(Response.Success.is(response));
+assertEquals(response.headers.status, 201);
+
+server.close();
+</code></pre>
+<h2 id="simple-http-server">Simple HTTP server</h2>
+<p>The fastest way to start a HTTP server is to use the <code>startHTTPServer</code> function.
+The function takes two arguments; the first argument is the options, and the second is a unary
+function that takes a <code>Request</code> and return a <code>Task</code> of a <code>Response</code>.</p>
+
+<pre><code class="lang-js">import Task from &quot;https://deno.land/x/functional@v1.3.2/library/Task.js&quot;;
+import Response from &quot;https://deno.land/x/functional_io@v1.1.0/library/Response.js&quot;;
+import startHTTPServer from &quot;https://deno.land/x/functional_http_server@v0.3.1/library/server.js&quot;;
+
+startHTTPServer({ port: 8080 }, request =&gt; Task.of(Response.OK({}, request.raw)));
+</code></pre>
+<p>You can test this simple server by executing it your file</p>
+
+<pre><code class="lang-bash">$ deno run --allow-net server.js
+</code></pre>
+
+<pre><code class="lang-bash">$ curl localhost:8080 -d &quot;Hello, Hoge!&quot;
+&gt; Hello, Hoge!
+</code></pre>

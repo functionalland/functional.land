@@ -83,7 +83,7 @@ const container = cwd();
 
 assert(Task.is(container));
 </code></pre>
-<h3 id="-ensuredir-https-deno-land-std-0-79-0-fs-ensuredir-"><code>ensureDir</code> <a href="https://deno.land/std@0.79.0/fs#ensuredir">📕</a></h3>
+<h3 id="-ensuredir-https-deno-land-std-0-83-0-fs-ensuredir-"><code>ensureDir</code> <a href="https://deno.land/std@0.83.0/fs#ensuredir">📕</a></h3>
 <p><code>Directory → Task e Directory</code></p>
 <p>Ensures that the directory exists. If the directory structure does not exist, it is created. Like <code>mkdir -p</code>.</p>
 
@@ -93,7 +93,7 @@ const container = emptyDir(Directory(`${Deno.cwd()}/hoge`));
 
 assert(Task.is(container));
 </code></pre>
-<h3 id="-exists-https-deno-land-std-0-79-0-fs-exists-"><code>exists</code> <a href="https://deno.land/std@0.79.0/fs#exists">📕</a></h3>
+<h3 id="-exists-https-deno-land-std-0-83-0-fs-exists-"><code>exists</code> <a href="https://deno.land/std@0.83.0/fs#exists">📕</a></h3>
 <p>`URL → Task e|null URL</p>
 <p>Test whether the given path exists by checking with the file system.
 If the file or directory doesn&#39;t exist, it will resolve to <code>Either.Left(null)</code>.</p>
@@ -104,7 +104,7 @@ const container = exists(Directory(`${Deno.cwd()}/hoge`));
 
 assert(Task.is(container));
 </code></pre>
-<h3 id="-mkdir-https-deno-land-std-0-79-0-fs-mkdir-"><code>mkdir</code> <a href="https://deno.land/std@0.79.0/fs#mkdir">📕</a></h3>
+<h3 id="-mkdir-https-deno-land-std-0-83-0-fs-mkdir-"><code>mkdir</code> <a href="https://deno.land/std@0.83.0/fs#mkdir">📕</a></h3>
 <p><code>Object → Directory → Task e Directory</code></p>
 <p>Creates a new directory with the specified path.</p>
 
@@ -114,7 +114,7 @@ const container = mkdir({}, Directory(`${Deno.cwd()}/hoge`));
 
 assert(Task.is(container));
 </code></pre>
-<h3 id="-move-https-deno-land-std-0-79-0-fs-move-"><code>move</code> <a href="https://deno.land/std@0.79.0/fs#move">📕</a></h3>
+<h3 id="-move-https-deno-land-std-0-83-0-fs-move-"><code>move</code> <a href="https://deno.land/std@0.83.0/fs#move">📕</a></h3>
 <p><code>Object → String → URL → Task e URL</code></p>
 <p>Moves a file or directory.</p>
 

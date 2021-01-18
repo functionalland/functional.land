@@ -1,0 +1,35 @@
+<h2 id="usage">Usage</h2>
+<p>Functional Redis is optimized to write elegant and powerful point-free functions.
+This example uses the Ramda library - for simplification - but you should be able to use any library that implements the Fantasy-land specifications.</p>
+
+<pre><code class="lang-js">import { safeExtract } from &quot;https://deno.land/x/functional@v1.3.2/library/utilities.js&quot;;
+import File from &quot;https://deno.land/x/functional_io@v1.1.0/library/File.js&quot;;
+import { writeFile } from &quot;https://deno.land/x/functional_io@v1.1.0/library/fs.js&quot;;
+import RedisRequest from &quot;https://deno.land/x/functional_redis@v0.3.0/library/RedisRequest.js&quot;;
+import {
+  createRedisSession,
+  pipeRedisCommand
+} from &quot;https://deno.land/x/functional_redis@v0.3.0/library/client.js&quot;;
+
+const copyHogeToFuga = createRedisSession(
+  compose(
+    chain(
+      compose(
+        writeFile({}),
+        concat(File.fromPath(`${Deno.cwd()}/hoge`))
+      )
+    ),
+    pipeRedisCommand(
+      [
+        RedisRequest.set({}, &quot;hoge&quot;, &quot;piyo&quot;),
+        RedisRequest.get(&quot;hoge&quot;),
+        RedisRequest.set({}, &quot;fuga&quot;)
+      ]
+    )
+  )
+);
+
+const container = await copyHogeToFuga({ port: 6379 }).run();
+
+safeExtract(&quot;Failed to execute the request.&quot;, container);
+</code></pre>
